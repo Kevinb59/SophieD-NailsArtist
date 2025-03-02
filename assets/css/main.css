@@ -4,14 +4,14 @@
 /* Importation des polices personnalisées */
 @font-face {
     font-family: 'Themysion';
-    src: url('assets/fonts/Themysion.ttf') format('truetype');
+    src: url('../fonts/Themysion.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'Maharlika';
-    src: url('assets/fonts/Maharlika-Regular.ttf') format('truetype');
+    src: url('../fonts/Maharlika-Regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
