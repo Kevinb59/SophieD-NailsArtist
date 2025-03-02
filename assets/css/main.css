@@ -3408,7 +3408,7 @@ input, select, textarea {
 
 		/* Style pour "Sophie D" */
 		#intro h1 .sophie {
-    			font-size: 10rem;
+    			font-size: 15rem;
     			font-family: 'Themysion', serif;
     			font-weight: normal;
 			text-transform: none;
@@ -3494,7 +3494,7 @@ input, select, textarea {
 			}
 
    				 #intro h1 .sophie {
-        				font-size: 7.5rem;
+        				font-size: 11rem;
     				}
 
     				#intro h1 .nail-artist {
@@ -3519,7 +3519,7 @@ input, select, textarea {
 			}
 
     				#intro h1 .sophie {
-        				font-size: 5.5rem;
+        				font-size: 8.5rem;
         				line-height: 1.1;
     				}
 
