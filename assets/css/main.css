@@ -3405,6 +3405,26 @@ input, select, textarea {
 			line-height: 1;
 		}
 
+		/* Style pour "Sophie D" */
+		#intro h1 .sophie {
+    			font-size: 6rem;
+    			font-family: 'Themysion', serif;
+    			font-weight: normal;
+    			color: #ffffff;
+    			letter-spacing: 2px;
+		}
+
+		/* Style pour "Nail Artist" */
+		#intro h1 .nail-artist {
+    			font-size: 3rem;
+    			font-family: 'Maharlika', cursive;
+    			font-weight: normal;
+    			color: #ffffff;
+    			text-transform: none;
+    			display: block;
+    			margin-top: 0.5rem;
+		}
+
 		#intro p {
 			font-size: 1.25rem;
 			font-style: italic;
@@ -3471,6 +3491,14 @@ input, select, textarea {
 				min-height: 90vh;
 			}
 
+   				 #intro h1 .sophie {
+        				font-size: 4.5rem;
+    				}
+
+    				#intro h1 .nail-artist {
+        				font-size: 2.5rem;
+    				}
+			
 				#intro p br {
 					display: none;
 				}
@@ -3488,6 +3516,15 @@ input, select, textarea {
 				min-height: 80vh;
 			}
 
+    				#intro h1 .sophie {
+        				font-size: 3.5rem;
+        				line-height: 1.1;
+    				}
+
+    				#intro h1 .nail-artist {
+        				font-size: 2rem;
+    				}
+			
 				#intro h1 {
 					font-size: 3.25rem;
 					line-height: 1.1;
