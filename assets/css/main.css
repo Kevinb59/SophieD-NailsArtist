@@ -3403,6 +3403,7 @@ input, select, textarea {
 		#intro h1 {
 			font-size: 5rem;
 			line-height: 1;
+			text-transform: none;
 		}
 
 		/* Style pour "Sophie D" */
@@ -3410,6 +3411,7 @@ input, select, textarea {
     			font-size: 6rem;
     			font-family: 'Themysion', serif;
     			font-weight: normal;
+			text-transform: none;
     			color: #ffffff;
     			letter-spacing: 2px;
 		}
