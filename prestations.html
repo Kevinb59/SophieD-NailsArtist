@@ -155,58 +155,106 @@
 							<!-- Form -->
 								<h3>FORMULAIRE DE PRISE DE RENDEZ-VOUS</h3>
 
-								<form method="post" action="#">
-									<div class="row gtr-uniform">
-										<div class="col-6 col-12-xsmall">
-											<input type="text" name="demo-name" id="demo-name" value="" placeholder="Nom" />
-										</div>
-										<div class="col-6 col-12-xsmall">
-											<input type="email" name="demo-email" id="demo-email" value="" placeholder="Email" />
-										</div>
-										<!-- Break -->
-										<div class="col-12">
-											<select name="demo-category" id="demo-category">
-												<option value="">- Prestations -</option>
-												<option value="1">Pose complète gel (capsule/chablon)</option>
-												<option value="1">Pose gel X + forfait full Nail Art</option>
-												<option value="1">Remplissage gel</option>
-												<option value="1">Pose gainage ongle naturel</option>
-												<option value="1">Remplissage gainage</option>
-												<option value="1">Babyboomer gel</option>
-												<option value="1">Babyboomer semi</option>
-											</select>
-										</div>
-										<!-- Break -->
-										<div class="col-4 col-12-small">
-											<input type="radio" id="demo-priority-low" name="demo-priority" checked>
-											<label for="demo-priority-low">Petit</label>
-										</div>
-										<div class="col-4 col-12-small">
-											<input type="radio" id="demo-priority-normal" name="demo-priority">
-											<label for="demo-priority-normal">Normal</label>
-										</div>
-										<div class="col-4 col-12-small">
-											<input type="radio" id="demo-priority-high" name="demo-priority">
-											<label for="demo-priority-high">Grand</label>
-										</div>
-										<!-- Break -->
-										<div class="col-6 col-12-small">
-											<input type="checkbox" id="demo-copy" name="demo-copy" checked>
-											<label for="demo-copy">Recevoir une copie</label>
-										</div>
-										<!-- Break -->
-										<div class="col-12">
-											<textarea name="demo-message" id="demo-message" placeholder="Ecrivez votre message" rows="6"></textarea>
-										</div>
-										<!-- Break -->
-										<div class="col-12">
-											<ul class="actions">
-												<li><input type="submit" value="Envoyer" class="primary" /></li>
-												<li><input type="reset" value="Reset" /></li>
-											</ul>
-										</div>
-									</div>
-								</form>
+									<form method="post" action="#">
+    										<div class="row gtr-uniform">
+        										<div class="col-6 col-12-xsmall">
+            										<input type="text" name="nom" id="nom" value="" placeholder="Nom" required />
+        									</div>
+        									<div class="col-6 col-12-xsmall">
+            										<input type="email" name="email" id="email" value="" placeholder="Email" required />
+        									</div>
+        
+        									<!-- Prestations -->
+        									<div class="col-12">
+            										<select name="prestation" id="prestation" required>
+                										<option value="">- Prestations -</option>
+                										<option value="Pose complète gel">Pose complète gel (capsule/chablon)</option>
+                										<option value="Pose gel X + Nail Art">Pose gel X + forfait full Nail Art</option>
+               											<option value="Remplissage gel">Remplissage gel</option>
+                										<option value="Pose gainage ongle naturel">Pose gainage ongle naturel</option>
+                										<option value="Remplissage gainage">Remplissage gainage</option>
+                										<option value="Babyboomer gel">Babyboomer gel</option>
+                										<option value="Babyboomer semi">Babyboomer semi</option>
+            										</select>
+        									</div>
+
+        									<!-- Longueur -->
+        									<div class="col-4 col-12-small">
+            										<input type="radio" id="longueur-petit" name="longueur" value="Petit" checked>
+            										<label for="longueur-petit">Petit</label>
+        									</div>
+        									<div class="col-4 col-12-small">
+            										<input type="radio" id="longueur-normal" name="longueur" value="Normal">
+            										<label for="longueur-normal">Normal</label>
+        									</div>
+        									<div class="col-4 col-12-small">
+            										<input type="radio" id="longueur-grand" name="longueur" value="Grand">
+            										<label for="longueur-grand">Grand</label>
+        									</div>
+
+        									<!-- Suppléments -->
+        									<h4>Suppléments</h4>
+
+									        <!-- Effet poudre -->
+									        <div class="col-6 col-12-small">
+									            <input type="checkbox" id="effet-poudre" name="effet-poudre">
+									            <label for="effet-poudre">Effet Poudre</label>
+									        </div>
+									
+									        <!-- Paillettes -->
+									        <div class="col-6 col-12-small">
+									            <input type="checkbox" id="paillettes" name="paillettes">
+									            <label for="paillettes">Paillettes</label>
+									        </div>
+									
+									        <!-- Strass -->
+									        <div class="col-6 col-12-small">
+									            <input type="radio" id="strass-10" name="strass" value="10">
+									            <label for="strass-10">Strass (10)</label>
+									        </div>
+									        <div class="col-6 col-12-small">
+									            <input type="radio" id="strass-20" name="strass" value="20">
+									            <label for="strass-20">Strass (20)</label>
+									        </div>
+									
+									        <!-- Nail Art -->
+									        <h4>Nail Art</h4>
+									
+									        <div class="col-12">
+									            <label for="nail-art-travaille">Nail Art de saison travaillé (par doigt)</label>
+									            <input type="number" id="nail-art-travaille" name="nail-art-travaille" min="0" max="10" value="0">
+									        </div>
+									
+									        <div class="col-12">
+									            <label for="nail-art-simple">Nail Art de saison simple (par doigt)</label>
+									            <input type="number" id="nail-art-simple" name="nail-art-simple" min="0" max="10" value="0">
+									        </div>
+									
+									        <div class="col-12">
+									            <label for="chrome-3d">3D + Chrome (par doigt)</label>
+									            <input type="number" id="chrome-3d" name="chrome-3d" min="0" max="10" value="0">
+									        </div>
+									
+									        <!-- Recevoir une copie -->
+									        <div class="col-6 col-12-small">
+									            <input type="checkbox" id="recevoir-copie" name="recevoir-copie" checked>
+									            <label for="recevoir-copie">Recevoir une copie</label>
+									        </div>
+									
+									        <!-- Message -->
+									        <div class="col-12">
+									            <textarea name="message" id="message" placeholder="Écrivez votre message" rows="6"></textarea>
+									        </div>
+									
+									        <!-- Boutons -->
+									        <div class="col-12">
+									            <ul class="actions">
+									                <li><input type="submit" value="Envoyer" class="primary" /></li>
+									                <li><input type="reset" value="Reset" /></li>
+									            </ul>
+									        </div>
+									    </div>
+									</form>
 
 								<hr />
 								
