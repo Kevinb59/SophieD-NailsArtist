@@ -155,16 +155,23 @@
 							<!-- Form -->
 								<h3>FORMULAIRE DE PRISE DE RENDEZ-VOUS</h3>
 								
-								<form method="post" action="#">
+								<form method="post" action="#" enctype="multipart/form-data">
 								    <div class="row gtr-uniform">
-								        <!-- Nom et Email -->
-								        <div class="col-6 col-12-xsmall">
+								        <!-- Nom -->
+								        <div class="col-4 col-12-xsmall">
 								            <input type="text" name="nom" id="nom" value="" placeholder="Nom" required />
 								        </div>
-								        <div class="col-6 col-12-xsmall">
+								
+								        <!-- Email -->
+								        <div class="col-4 col-12-xsmall">
 								            <input type="email" name="email" id="email" value="" placeholder="Email" required />
 								        </div>
-								        
+								
+								        <!-- Téléphone -->
+								        <div class="col-4 col-12-xsmall">
+								            <input type="tel" name="telephone" id="telephone" value="" placeholder="Téléphone" required />
+								        </div>
+								
 								        <!-- Prestations -->
 								        <div class="col-12">
 								            <select name="prestation" id="prestation" required>
@@ -190,16 +197,18 @@
 								            <label for="paillettes">Paillettes</label>
 								        </div>
 								
+								        <!-- Strass avec cases à cocher -->
 								        <div class="col-6 col-12-small">
-								            <input type="radio" id="strass-10" name="strass" value="10">
+								            <input type="checkbox" id="strass-10" name="strass-10">
 								            <label for="strass-10">Strass (10)</label>
 								        </div>
 								
 								        <div class="col-6 col-12-small">
-								            <input type="radio" id="strass-20" name="strass" value="20">
+								            <input type="checkbox" id="strass-20" name="strass-20">
 								            <label for="strass-20">Strass (20)</label>
 								        </div>
 								
+								        <!-- Nail Art et 3D -->
 								        <div class="col-4 col-12-small">
 								            <label for="nail-art-travaille">Nail Art de saison travaillé</label>
 								            <input type="number" id="nail-art-travaille" name="nail-art-travaille" min="0" max="10" value="0">
@@ -226,6 +235,12 @@
 								            <textarea name="message" id="message" placeholder="Écrivez votre message" rows="6"></textarea>
 								        </div>
 								
+								        <!-- Upload d'image -->
+								        <div class="col-12">
+								            <label for="image">Joindre une image (ex: inspiration, exemple de nail art souhaité)</label>
+								            <input type="file" id="image" name="image" accept="image/*">
+								        </div>
+								
 								        <!-- Boutons -->
 								        <div class="col-12">
 								            <ul class="actions">
@@ -235,6 +250,7 @@
 								        </div>
 								    </div>
 								</form>
+
 
 								<hr />
 								
