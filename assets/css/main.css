@@ -2337,6 +2337,18 @@ input, select, textarea {
 		margin: 0 0 0.75rem 0;
 	}
 
+	/* Style uniquement pour les labels des champs number */
+	.nail-art-label {
+	    font-family: "Merriweather", Georgia, serif; /* Même police que les checkboxes */
+	    font-weight: 300;
+	    font-size: 1rem;
+	    text-transform: none;
+	    display: flex;
+	    align-items: center;
+	    gap: 10px; /* Espacement entre le label et l'input */
+	    margin-bottom: 0.5rem; /* Alignement vertical */
+	}
+
 		@media screen and (max-width: 980px) {
 
 			label {
