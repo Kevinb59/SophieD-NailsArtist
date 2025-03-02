@@ -1,6 +1,21 @@
 @import url(fontawesome-all.min.css);
 @import url("https://fonts.googleapis.com/css?family=Merriweather:300,700,300italic,700italic|Source+Sans+Pro:900");
 
+/* Importation des polices personnalisées */
+@font-face {
+    font-family: 'Themysion';
+    src: url('assets/fonts/Themysion.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Maharlika';
+    src: url('assets/fonts/Maharlika-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 /*
 	Massively by HTML5 UP
 	html5up.net | @ajlkn
