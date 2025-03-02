@@ -235,12 +235,18 @@
 								            <textarea name="message" id="message" placeholder="Écrivez votre message" rows="6"></textarea>
 								        </div>
 								
-								        <!-- Upload d'image -->
-								        <div class="col-12">
-								            <label for="image">Joindre une image (ex: inspiration, exemple de nail art souhaité)</label>
-								            <input type="file" id="image" name="image" accept="image/*">
-								        </div>
-								
+									<!-- Upload d'image avec bouton stylisé -->
+									<div class="col-12">
+									    <label for="image">Joindre une image (ex: inspiration, exemple de nail art souhaité)</label>
+									    <input type="file" id="image" name="image" accept="image/*" style="display: none;">
+									    
+									    <ul class="actions">
+									        <li><a href="#" class="button icon solid fa-download" onclick="document.getElementById('image').click(); return false;">Choisir une image</a></li>
+									    </ul>
+									    
+									    <p id="file-name" style="margin-top: 10px;"></p>
+									</div>
+
 								        <!-- Boutons -->
 								        <div class="col-12">
 								            <ul class="actions">
