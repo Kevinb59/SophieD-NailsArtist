@@ -188,7 +188,7 @@
 								
 								        <!-- Prestations -->
 								        <div class="col-12">
-								            <select name="prestation" id="prestation" required>
+								            <select name="prestation" id="prestation" required onchange="toggleFields()">
 								                <option value="">- Prestations -</option>
 								                <option value="Pose complète gel">Pose complète gel (capsule/chablon)</option>
 								                <option value="Pose gel X + Nail Art">Pose gel X + forfait full Nail Art</option>
@@ -197,49 +197,68 @@
 								                <option value="Remplissage gainage">Remplissage gainage</option>
 								                <option value="Babyboomer gel">Babyboomer gel</option>
 								                <option value="Babyboomer semi">Babyboomer semi</option>
-										<option value="Nail Art Libre">Nail Art Libre</option>
+								                <option value="Nail Art Libre">Nail Art Libre</option>
 								            </select>
 								        </div>
-									<div class="col-12">
-									    <h6>SUPPLÉMENTS (OPTIONNEL):</h6>
-									</div>
-								        <!-- Suppléments -->
-								        <div class="col-6 col-12-small">
-								            <input type="checkbox" id="effet-poudre" name="effet-poudre">
-								            <label for="effet-poudre">Effet Poudre</label>
+								
+								        <!-- Suppléments (masqués si Nail Art Libre est sélectionné) -->
+								        <div id="supplements">
+								            <div class="col-12">
+								                <h6>SUPPLÉMENTS (OPTIONNEL):</h6>
+								            </div>
+								
+								            <div class="col-6 col-12-small">
+								                <input type="checkbox" id="effet-poudre" name="effet-poudre">
+								                <label for="effet-poudre">Effet Poudre</label>
+								            </div>
+								
+								            <div class="col-6 col-12-small">
+								                <input type="checkbox" id="paillettes" name="paillettes">
+								                <label for="paillettes">Paillettes</label>
+								            </div>
+								
+								            <!-- Strass -->
+								            <div class="col-6 col-12-small">
+								                <input type="checkbox" id="strass-10" name="strass-10">
+								                <label for="strass-10">Strass (10)</label>
+								            </div>
+								
+								            <div class="col-6 col-12-small">
+								                <input type="checkbox" id="strass-20" name="strass-20">
+								                <label for="strass-20">Strass (20)</label>
+								            </div>
+								
+								            <!-- Nail Art et 3D -->
+								            <div class="col-4 col-12-small">
+								                <label for="nail-art-travaille">Nail Art de saison travaillé</label>
+								                <input type="number" id="nail-art-travaille" name="nail-art-travaille" min="0" max="10" placeholder="Nombre de doigts">
+								            </div>
+								
+								            <div class="col-4 col-12-small">
+								                <label for="nail-art-simple">Nail Art de saison simple</label>
+								                <input type="number" id="nail-art-simple" name="nail-art-simple" min="0" max="10" placeholder="Nombre de doigts">
+								            </div>
+								
+								            <div class="col-4 col-12-small">
+								                <label for="chrome-3d">3D + Chrome</label>
+								                <input type="number" id="chrome-3d" name="chrome-3d" min="0" max="10" placeholder="Nombre de doigts">
+								            </div>
 								        </div>
 								
-								        <div class="col-6 col-12-small">
-								            <input type="checkbox" id="paillettes" name="paillettes">
-								            <label for="paillettes">Paillettes</label>
+								        <!-- Longueur des ongles (visible uniquement si Nail Art Libre est sélectionné) -->
+								        <div id="longueur-ongles" style="display: none;">
+								            <div class="col-12">
+								                <h6>CHOISISSEZ LA LONGUEUR DES ONGLES :</h6>
+								            </div>
+								            <div class="col-6 col-12-small">
+								                <input type="radio" id="court" name="longueur" value="court">
+								                <label for="court">Court</label>
+								            </div>
+								            <div class="col-6 col-12-small">
+								                <input type="radio" id="long" name="longueur" value="long">
+								                <label for="long">Long</label>
+								            </div>
 								        </div>
-								
-								        <!-- Strass avec cases à cocher -->
-								        <div class="col-6 col-12-small">
-								            <input type="checkbox" id="strass-10" name="strass-10">
-								            <label for="strass-10">Strass (10)</label>
-								        </div>
-								
-								        <div class="col-6 col-12-small">
-								            <input type="checkbox" id="strass-20" name="strass-20">
-								            <label for="strass-20">Strass (20)</label>
-								        </div>
-								
-								        <!-- Nail Art et 3D -->
-									<div class="col-4 col-12-small">
-									    <label for="nail-art-travaille" class="nail-art-label">Nail Art de saison travaillé</label>
-									    <input type="number" id="nail-art-travaille" name="nail-art-travaille" min="0" max="10" placeholder="Nombre de doigts">
-									</div>
-									
-									<div class="col-4 col-12-small">
-									    <label for="nail-art-simple" class="nail-art-label">Nail Art de saison simple</label>
-									    <input type="number" id="nail-art-simple" name="nail-art-simple" min="0" max="10" placeholder="Nombre de doigts">
-									</div>
-									
-									<div class="col-4 col-12-small">
-									    <label for="chrome-3d" class="nail-art-label">3D + Chrome</label>
-									    <input type="number" id="chrome-3d" name="chrome-3d" min="0" max="10" placeholder="Nombre de doigts">
-									</div>
 								
 								        <!-- Recevoir une copie -->
 								        <div class="col-12">
@@ -252,18 +271,16 @@
 								            <textarea name="message" id="message" placeholder="Écrivez votre message (optionnel)" rows="6"></textarea>
 								        </div>
 								
-									<!-- Upload d'image avec bouton stylisé -->
-									<div class="col-12">
-									    <label for="image">Joindre une image (optionnel)</label>
-									    <input type="file" id="image" name="image" accept="image/*" style="display: none;">
-									    
-									    <ul class="actions">
-									        <li><a href="#" class="button icon solid fa-download" onclick="document.getElementById('image').click(); return false;">Choisir une image</a></li>
-									    </ul>
-									    
-									    <p id="file-name" style="margin-top: 10px;"></p>
-									</div>
-
+								        <!-- Upload d'image avec bouton stylisé -->
+								        <div class="col-12">
+								            <label for="image">Joindre une image (optionnel)</label>
+								            <input type="file" id="image" name="image" accept="image/*" style="display: none;">
+								            <ul class="actions">
+								                <li><a href="#" class="button icon solid fa-download" onclick="document.getElementById('image').click(); return false;">Choisir une image</a></li>
+								            </ul>
+								            <p id="file-name" style="margin-top: 10px;"></p>
+								        </div>
+								
 								        <!-- Boutons -->
 								        <div class="col-12">
 								            <ul class="actions">
@@ -273,7 +290,23 @@
 								        </div>
 								    </div>
 								</form>
-
+								
+								<!-- Script JavaScript pour gérer l'affichage des sections -->
+								<script>
+								function toggleFields() {
+								    var prestation = document.getElementById("prestation").value;
+								    var supplements = document.getElementById("supplements");
+								    var longueurOngles = document.getElementById("longueur-ongles");
+								
+								    if (prestation === "Nail Art Libre") {
+								        supplements.style.display = "none";  // Masque les suppléments
+								        longueurOngles.style.display = "block"; // Affiche Court / Long
+								    } else {
+								        supplements.style.display = "block";  // Affiche les suppléments
+								        longueurOngles.style.display = "none"; // Masque Court / Long
+								    }
+								}
+								</script>
 
 								<hr />
 								
