@@ -4763,3 +4763,19 @@ input, select, textarea {
 		}
 
 	}
+
+
+
+.precision {
+    text-align: left !important;
+    line-height: 1.6; /* Augmente légèrement l'espacement */
+    margin-bottom: 1rem; /* Ajoute de l'espace entre chaque phrase */
+}
+
+/* Correction pour les téléphones */
+@media screen and (max-width: 768px) {
+    .precision {
+        text-align: left !important;
+        display: block;
+    }
+}
