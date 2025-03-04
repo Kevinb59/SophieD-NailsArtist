@@ -137,25 +137,65 @@
 				<!-- Footer -->
 					<footer id="footer">
 						<section>
-							<form method="post" action="#">
-								<div class="fields">
-									<div class="field">
-										<label for="name">Nom</label>
-										<input type="text" name="name" id="name" />
-									</div>
-									<div class="field">
-										<label for="email">Email</label>
-										<input type="text" name="email" id="email" />
-									</div>
-									<div class="field">
-										<label for="message">Message</label>
-										<textarea name="message" id="message" rows="3"></textarea>
-									</div>
-								</div>
-								<ul class="actions">
-									<li><input type="submit" value="Envoyer" /></li>
-								</ul>
+							<form id="contact-form" action="https://formsubmit.co/sophied.nailartist@gmail.com" method="POST">
+							    <div class="fields">
+							        <div class="field">
+							            <label for="name">Nom</label>
+							            <input type="text" name="name" id="name" required>
+							        </div>
+							        <div class="field">
+							            <label for="email">Email</label>
+							            <input type="email" name="email" id="email" required>
+							        </div>
+							        <div class="field">
+							            <label for="message">Message</label>
+							            <textarea name="message" id="message" rows="3" required></textarea>
+							        </div>
+							    </div>
+							    
+							    <!-- Champs cachés pour configurer l'email -->
+							    <input type="hidden" name="_subject" value="Message rapide depuis votre site">
+							    <input type="hidden" name="_captcha" value="false"> <!-- Désactive le CAPTCHA -->
+							    
+							    <ul class="actions">
+							        <li><button type="submit" id="submit-btn">Envoyer</button></li>
+							    </ul>
 							</form>
+							
+							<!-- JavaScript -->
+							<script>
+							    document.getElementById("contact-form").addEventListener("submit", function(event) {
+							        event.preventDefault(); // Empêche le rechargement de la page
+							
+							        let form = this;
+							        let submitBtn = document.getElementById("submit-btn");
+							
+							        // Désactive le bouton pour éviter les envois multiples
+							        submitBtn.disabled = true;
+							        submitBtn.textContent = "Envoi en cours...";
+							
+							        // Envoi du formulaire
+							        fetch(form.action, {
+							            method: "POST",
+							            body: new FormData(form),
+							        })
+							        .then(response => {
+							            if (response.ok) {
+							                // Si l'envoi réussit, on vide le formulaire et change le bouton
+							                form.reset();
+							                submitBtn.textContent = "Message envoyé ✅";
+							            } else {
+							                submitBtn.textContent = "Erreur ❌";
+							                submitBtn.disabled = false;
+							            }
+							        })
+							        .catch(error => {
+							            console.error("Erreur:", error);
+							            submitBtn.textContent = "Erreur ❌";
+							            submitBtn.disabled = false;
+							        });
+							    });
+							</script>
 						</section>
 						<section class="split contact">
 							<section class="alt">
