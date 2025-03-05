@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Portfolio Google Drive</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .album { display: inline-block; margin: 20px; cursor: pointer; }
+        .album img { width: 150px; height: 150px; object-fit: cover; border-radius: 10px; }
+        .gallery-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; flex-wrap: wrap; justify-content: center; align-items: center; }
+        .gallery-overlay img { max-width: 80%; max-height: 80%; margin: 10px; }
+        .gallery-overlay button { position: absolute; top: 20px; right: 20px; padding: 10px; background: white; border: none; cursor: pointer; }
+        .error-message { color: red; font-size: 18px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Test Portfolio Dynamique</h1>
+    <div id="portfolio-gallery"></div>
+    <div id="error-container" class="error-message"></div>
+    
+    <script>
+        const API_KEY = "AIzaSyC8gSxfnMK58E4-rAxRO3OzDwCYQoDgo3c";
+        const FOLDER_ID = "1KNYudPsb9yYCUnTmkWgNV0wxSqhyCAnD";
+
+        async function loadPortfolio() {
+            const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType,thumbnailLink)`;
+            
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error("Problème de connexion avec l'API");
+                
+                const data = await response.json();
+                console.log("Réponse API:", data);
+                
+                if (!data || !data.files || !Array.isArray(data.files)) {
+                    throw new Error("Données mal formatées ou albums introuvables");
+                }
+                
+                const galleryContainer = document.getElementById("portfolio-gallery");
+                const errorContainer = document.getElementById("error-container");
+                galleryContainer.innerHTML = "";
+                errorContainer.textContent = "";
+                
+                if (data.files.length === 0) {
+                    errorContainer.textContent = "Aucun album disponible.";
+                    return;
+                }
+                
+                data.files.forEach(file => {
+                    if (!file.name || !file.id) return;
+                    
+                    const albumDiv = document.createElement("div");
+                    albumDiv.classList.add("album");
+                    
+                    const title = document.createElement("h3");
+                    title.textContent = file.name;
+                    albumDiv.appendChild(title);
+                    
+                    const img = document.createElement("img");
+                    img.src = file.thumbnailLink || `https://drive.google.com/thumbnail?id=${file.id}&sz=500`;
+                    img.alt = file.name;
+                    img.onerror = () => {
+                        img.src = "https://via.placeholder.com/150?text=Image+Introuvable";
+                    };
+                    
+                    albumDiv.appendChild(img);
+                    galleryContainer.appendChild(albumDiv);
+                });
+            
+            } catch (error) {
+                console.error("Erreur lors du chargement des images:", error);
+                document.getElementById("error-container").textContent = "Erreur de chargement. Consultez la console pour plus d'infos.";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", loadPortfolio);
+    </script>
+</body>
+</html>
