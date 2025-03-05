@@ -211,5 +211,62 @@
 
 				document.addEventListener("DOMContentLoaded", loadPortfolio);
 			</script>
+			<script>
+			    document.addEventListener("DOMContentLoaded", function () {
+			        const portfolioGallery = document.getElementById("portfolio-gallery");
+			        const albums = document.querySelectorAll(".discover-btn");
+			
+			        albums.forEach(button => {
+			            button.addEventListener("click", function (event) {
+			                event.preventDefault();
+			                const albumId = this.getAttribute("data-album-id");
+			
+			                fetchAlbumImages(albumId);
+			            });
+			        });
+			
+			        function fetchAlbumImages(albumId) {
+			            // Masquer la liste des albums
+			            portfolioGallery.style.display = "none";
+			
+			            // Afficher la galerie d'images pour l'album
+			            const albumContainer = document.createElement("div");
+			            albumContainer.id = "album-view";
+			            albumContainer.innerHTML = `
+			                <button id="close-album" class="button">Retour</button>
+			                <div id="album-content" class="gallery"></div>
+			            `;
+			            document.body.appendChild(albumContainer);
+			
+			            // Charger les images
+			            fetch(`https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType,webContentLink)`)
+			                .then(response => response.json())
+			                .then(data => {
+			                    const albumContent = document.getElementById("album-content");
+			                    if (!data.files || data.files.length === 0) {
+			                        albumContent.innerHTML = "<p>Aucune image trouvée.</p>";
+			                        return;
+			                    }
+			
+			                    data.files.forEach(file => {
+			                        if (file.mimeType.startsWith("image/")) {
+			                            const img = document.createElement("img");
+			                            img.src = file.webContentLink;
+			                            img.alt = file.name;
+			                            img.style.maxWidth = "100%";
+			                            img.style.margin = "10px";
+			                            albumContent.appendChild(img);
+			                        }
+			                    });
+			                });
+			
+			            // Gestion du bouton "Retour"
+			            document.getElementById("close-album").addEventListener("click", function () {
+			                albumContainer.remove();
+			                portfolioGallery.style.display = "block";
+			            });
+			        }
+			    });
+			</script>
 	</body>
 </html>
