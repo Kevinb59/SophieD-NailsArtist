@@ -184,7 +184,7 @@
 
 							for (let file of albumData.files) {
 								if (file.name.toLowerCase() === "miniature.jpg") {
-									thumbnail = file.thumbnailLink || `https://drive.google.com/thumbnail?id=${file.id}&sz=500`;
+									thumbnail = `https://drive.google.com/uc?export=view&id=${file.id}`;
 								} else if (file.name.toLowerCase() === "description.txt") {
 									const descriptionResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}`);
 									description = await descriptionResponse.text();
