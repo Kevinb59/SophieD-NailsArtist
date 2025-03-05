@@ -1,94 +1,124 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio Google Drive</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        .album { margin: 20px 0; }
-        .album-title { font-size: 24px; font-weight: bold; margin-top: 20px; }
-        .image-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-        .image-container img { width: 150px; height: 150px; object-fit: cover; border-radius: 10px; }
-        .error-message { color: red; font-size: 18px; margin-top: 20px; }
-    </style>
-</head>
-<body>
-    <h1>Portfolio Google Drive</h1>
-    <div id="loading-message">Chargement en cours...</div>
-    <div id="portfolio-gallery"></div>
-    <div id="error-container" class="error-message"></div>
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>SophieD - Nail Artist</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
 
-    <script>
-        const API_KEY = "AIzaSyC8gSxfnMK58E4-rAxRO3OzDwCYQoDgo3c";
-        const ROOT_FOLDER_ID = "1KNYudPsb9yYCUnTmkWgNV0wxSqhyCAnD";
+		<!-- Wrapper -->
+			<div id="wrapper">
 
-        async function fetchAlbums() {
-            try {
-                // Récupérer les sous-dossiers (albums)
-                const albumUrl = `https://www.googleapis.com/drive/v3/files?q='${ROOT_FOLDER_ID}'+in+parents+and+mimeType='application/vnd.google-apps.folder'&key=${API_KEY}`;
-                const albumResponse = await fetch(albumUrl);
-                const albumData = await albumResponse.json();
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Accueil</a>
+					</header>
 
-                if (!albumData.files || albumData.files.length === 0) {
-                    throw new Error("Aucun album trouvé.");
-                }
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">Accueil</a></li>
+							<li><a href="prestations.html">Prestations & Rendez-vous</a></li>
+							<li><a href="presentation.html">Présentation</a></li>
+							<li class="active"><a href="testdrive.html">PortfolioTEST</a></li>
+							<li><a href="avis.html">Avis</a></li>
+						</ul>
+						<ul class="icons">
+							<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
+							<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
+							<li><a href="#" class="icon brands fa-tiktok"><span class="label">TikTok</span></a></li>
+						</ul>
+					</nav>
 
-                // Traiter chaque album
-                for (const album of albumData.files) {
-                    await fetchImages(album);
-                }
+				<!-- Main -->
+					<div id="main">
 
-                document.getElementById("loading-message").style.display = "none";
-            } catch (error) {
-                document.getElementById("error-container").textContent = "Erreur: " + error.message;
-            }
-        }
+						<!-- Posts -->
+							<section class="posts" id="portfolio-gallery">
+								<!-- Contenu dynamique chargé ici -->
+							</section>
 
-        async function fetchImages(album) {
-            try {
-                // Récupérer les images dans chaque album
-                const imageUrl = `https://www.googleapis.com/drive/v3/files?q='${album.id}'+in+parents+and+mimeType contains 'image/'&key=${API_KEY}&fields=files(id,name,thumbnailLink,webContentLink)`;
-                const imageResponse = await fetch(imageUrl);
-                const imageData = await imageResponse.json();
+					</div>
 
-                // Création du bloc d'album
-                const galleryContainer = document.getElementById("portfolio-gallery");
-                const albumDiv = document.createElement("div");
-                albumDiv.classList.add("album");
+				<!-- Footer -->
+					<footer id="footer">
+						<section>
+							<h3>Contact</h3>
+							<p><a href="mailto:contact@sophied-nailartist.fr">contact@sophied-nailartist.fr</a></p>
+						</section>
+					</footer>
 
-                const title = document.createElement("div");
-                title.classList.add("album-title");
-                title.textContent = album.name;
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; SophieD - Nail Artist</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
 
-                const imageContainer = document.createElement("div");
-                imageContainer.classList.add("image-container");
+			</div>
 
-                if (imageData.files.length === 0) {
-                    const noImages = document.createElement("p");
-                    noImages.textContent = "Aucune image disponible.";
-                    imageContainer.appendChild(noImages);
-                } else {
-                    imageData.files.forEach(file => {
-                        const img = document.createElement("img");
-                        img.src = file.thumbnailLink || `https://drive.google.com/thumbnail?id=${file.id}&sz=500`;
-                        img.alt = file.name;
-                        img.onerror = () => {
-                            img.src = "https://via.placeholder.com/150?text=Image+Introuvable";
-                        };
-                        imageContainer.appendChild(img);
-                    });
-                }
+		<!-- Scripts -->
+			<script>
+				const API_KEY = "AIzaSyC8gSxfnMK58E4-rAxRO3OzDwCYQoDgo3c";
+				const FOLDER_ID = "1KNYudPsb9yYCUnTmkWgNV0wxSqhyCAnD";
 
-                albumDiv.appendChild(title);
-                albumDiv.appendChild(imageContainer);
-                galleryContainer.appendChild(albumDiv);
-            } catch (error) {
-                console.error("Erreur de récupération des images:", error);
-            }
-        }
+				async function loadPortfolio() {
+					const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType)`;
+					try {
+						const response = await fetch(apiUrl);
+						if (!response.ok) throw new Error("Problème de connexion avec l'API");
+						const data = await response.json();
 
-        document.addEventListener("DOMContentLoaded", fetchAlbums);
-    </script>
-</body>
+						const galleryContainer = document.getElementById("portfolio-gallery");
+						galleryContainer.innerHTML = "";
+
+						if (!data.files || data.files.length === 0) {
+							galleryContainer.innerHTML = "<p>Aucun album disponible.</p>";
+							return;
+						}
+
+						for (let album of data.files) {
+							const albumId = album.id;
+							const albumName = album.name;
+							const albumApiUrl = `https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType,thumbnailLink)`;
+
+							const albumResponse = await fetch(albumApiUrl);
+							const albumData = await albumResponse.json();
+
+							let thumbnail = "https://via.placeholder.com/300?text=Aucune+image";
+							let description = "Aucune description disponible.";
+
+							for (let file of albumData.files) {
+								if (file.name.toLowerCase() === "miniature.jpg") {
+									thumbnail = file.thumbnailLink || `https://drive.google.com/thumbnail?id=${file.id}&sz=500`;
+								} else if (file.name.toLowerCase() === "description.txt") {
+									const descriptionResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}`);
+									description = await descriptionResponse.text();
+								}
+							}
+
+							const article = document.createElement("article");
+							article.innerHTML = `
+								<header>
+									<h2>${albumName}</h2>
+								</header>
+								<a href="#" class="image fit"><img src="${thumbnail}" alt="${albumName}" /></a>
+								<p>${description}</p>
+							`;
+							galleryContainer.appendChild(article);
+						}
+					} catch (error) {
+						console.error("Erreur lors du chargement des albums:", error);
+					}
+				}
+
+				document.addEventListener("DOMContentLoaded", loadPortfolio);
+			</script>
+	</body>
 </html>
