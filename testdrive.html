@@ -3,85 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Portfolio Google Drive</title>
+    <title>Portfolio Google Drive</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; }
-        .album { display: inline-block; margin: 20px; cursor: pointer; }
-        .album img { width: 150px; height: 150px; object-fit: cover; border-radius: 10px; }
+        .album { margin: 20px 0; }
+        .album-title { font-size: 24px; font-weight: bold; margin-top: 20px; }
+        .image-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .image-container img { width: 150px; height: 150px; object-fit: cover; border-radius: 10px; }
         .error-message { color: red; font-size: 18px; margin-top: 20px; }
     </style>
 </head>
 <body>
-    <h1>Test Portfolio Dynamique</h1>
+    <h1>Portfolio Google Drive</h1>
     <div id="loading-message">Chargement en cours...</div>
     <div id="portfolio-gallery"></div>
     <div id="error-container" class="error-message"></div>
 
     <script>
         const API_KEY = "AIzaSyC8gSxfnMK58E4-rAxRO3OzDwCYQoDgo3c";
-        const FOLDER_ID = "1KNYudPsb9yYCUnTmkWgNV0wxSqhyCAnD";
+        const ROOT_FOLDER_ID = "1KNYudPsb9yYCUnTmkWgNV0wxSqhyCAnD";
 
-        async function loadPortfolio() {
-            const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType,thumbnailLink,webContentLink)&pageSize=1000`;
-
+        async function fetchAlbums() {
             try {
-                const response = await fetch(apiUrl);
-                if (!response.ok) throw new Error("Problème de connexion avec l'API");
+                // Récupérer les sous-dossiers (albums)
+                const albumUrl = `https://www.googleapis.com/drive/v3/files?q='${ROOT_FOLDER_ID}'+in+parents+and+mimeType='application/vnd.google-apps.folder'&key=${API_KEY}`;
+                const albumResponse = await fetch(albumUrl);
+                const albumData = await albumResponse.json();
 
-                const data = await response.json();
-                console.log("Réponse API:", data);
-
-                if (!data || !data.files || !Array.isArray(data.files)) {
-                    throw new Error("Données mal formatées ou albums introuvables");
+                if (!albumData.files || albumData.files.length === 0) {
+                    throw new Error("Aucun album trouvé.");
                 }
 
-                const galleryContainer = document.getElementById("portfolio-gallery");
-                const errorContainer = document.getElementById("error-container");
-                const loadingMessage = document.getElementById("loading-message");
-
-                // Suppression du message de chargement
-                loadingMessage.style.display = "none";
-                galleryContainer.innerHTML = "";
-                errorContainer.textContent = "";
-
-                if (data.files.length === 0) {
-                    errorContainer.textContent = "Aucun album disponible.";
-                    return;
+                // Traiter chaque album
+                for (const album of albumData.files) {
+                    await fetchImages(album);
                 }
 
-                data.files.forEach(file => {
-                    if (!file.name || !file.id) return;
-
-                    const albumDiv = document.createElement("div");
-                    albumDiv.classList.add("album");
-
-                    const title = document.createElement("h3");
-                    title.textContent = file.name;
-                    albumDiv.appendChild(title);
-
-                    const img = document.createElement("img");
-                    img.src = file.thumbnailLink || `https://drive.google.com/thumbnail?id=${file.id}&sz=500`;
-                    img.alt = file.name;
-                    img.onerror = () => {
-                        img.src = "https://via.placeholder.com/150?text=Image+Introuvable";
-                    };
-
-                    const link = document.createElement("a");
-                    link.href = file.webContentLink || `https://drive.google.com/file/d/${file.id}/view`;
-                    link.target = "_blank";
-                    link.appendChild(img);
-
-                    albumDiv.appendChild(link);
-                    galleryContainer.appendChild(albumDiv);
-                });
-
+                document.getElementById("loading-message").style.display = "none";
             } catch (error) {
-                console.error("Erreur lors du chargement des images:", error);
-                document.getElementById("error-container").textContent = "Erreur de chargement. Consultez la console pour plus d'infos.";
+                document.getElementById("error-container").textContent = "Erreur: " + error.message;
             }
         }
 
-        document.addEventListener("DOMContentLoaded", loadPortfolio);
+        async function fetchImages(album) {
+            try {
+                // Récupérer les images dans chaque album
+                const imageUrl = `https://www.googleapis.com/drive/v3/files?q='${album.id}'+in+parents+and+mimeType contains 'image/'&key=${API_KEY}&fields=files(id,name,thumbnailLink,webContentLink)`;
+                const imageResponse = await fetch(imageUrl);
+                const imageData = await imageResponse.json();
+
+                // Création du bloc d'album
+                const galleryContainer = document.getElementById("portfolio-gallery");
+                const albumDiv = document.createElement("div");
+                albumDiv.classList.add("album");
+
+                const title = document.createElement("div");
+                title.classList.add("album-title");
+                title.textContent = album.name;
+
+                const imageContainer = document.createElement("div");
+                imageContainer.classList.add("image-container");
+
+                if (imageData.files.length === 0) {
+                    const noImages = document.createElement("p");
+                    noImages.textContent = "Aucune image disponible.";
+                    imageContainer.appendChild(noImages);
+                } else {
+                    imageData.files.forEach(file => {
+                        const img = document.createElement("img");
+                        img.src = file.thumbnailLink || `https://drive.google.com/thumbnail?id=${file.id}&sz=500`;
+                        img.alt = file.name;
+                        img.onerror = () => {
+                            img.src = "https://via.placeholder.com/150?text=Image+Introuvable";
+                        };
+                        imageContainer.appendChild(img);
+                    });
+                }
+
+                albumDiv.appendChild(title);
+                albumDiv.appendChild(imageContainer);
+                galleryContainer.appendChild(albumDiv);
+            } catch (error) {
+                console.error("Erreur de récupération des images:", error);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", fetchAlbums);
     </script>
 </body>
 </html>
