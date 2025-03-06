@@ -157,6 +157,7 @@
 			    const FOLDER_ID = "1KNYudPsb9yYCUnTmkWgNV0wxSqhyCAnD";
 			
 			    async function loadPortfolio() {
+			        console.log("Chargement du portfolio...");
 			        const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType)`;
 			        try {
 			            const response = await fetch(apiUrl);
@@ -173,18 +174,18 @@
 			
 			            for (let album of data.files) {
 			                const albumId = album.id;
-			                const albumName = album.name.toUpperCase(); // Mettre en majuscule le titre de l'album
-			                const albumApiUrl = `https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType,thumbnailLink,webContentLink)`;
+			                const albumName = album.name.toUpperCase();
+			                const albumApiUrl = `https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType)`;
 			
 			                const albumResponse = await fetch(albumApiUrl);
 			                const albumData = await albumResponse.json();
 			
-			                let thumbnail = "https://via.placeholder.com/510x210?text=Aucune+image";
+			                let thumbnail = "https://via.placeholder.com/510x210?text=Image+Indisponible";
 			                let description = "Aucune description disponible.";
 			
 			                for (let file of albumData.files) {
 			                    if (file.name.toLowerCase() === "miniature.jpg") {
-			                        thumbnail = `https://drive.google.com/uc?export=view&id=${file.id}`;
+			                        thumbnail = `https://lh3.googleusercontent.com/d/${file.id}`;
 			                    } else if (file.name.toLowerCase() === "description.txt") {
 			                        const descriptionResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}`);
 			                        description = await descriptionResponse.text();
@@ -197,79 +198,89 @@
 			                        <h2>${albumName}</h2>
 			                    </header>
 			                    <a href="#" class="image fit"><img src="${thumbnail}" alt="${albumName}" /></a>
-			                    <p style="text-align: center;">${description}</p>
+			                    <p class="description-text">${description}</p>
 			                    <ul class="actions special">
 			                        <li><a href="#" class="button discover-btn" data-album-id="${albumId}">Découvrir</a></li>
 			                    </ul>
 			                `;
 			                galleryContainer.appendChild(article);
 			            }
+			
+			            attachDiscoverEvents();
 			        } catch (error) {
 			            console.error("Erreur lors du chargement des albums:", error);
 			        }
 			    }
 			
-			    document.addEventListener("DOMContentLoaded", function () {
-			        loadPortfolio();
-			
-			        document.addEventListener("click", function (event) {
-			            if (event.target.classList.contains("discover-btn")) {
+			    function attachDiscoverEvents() {
+			        console.log("Attachement des événements sur les boutons Découvrir...");
+			        const albums = document.querySelectorAll(".discover-btn");
+			        albums.forEach(button => {
+			            button.addEventListener("click", function (event) {
 			                event.preventDefault();
-			                const albumId = event.target.getAttribute("data-album-id");
+			                const albumId = this.getAttribute("data-album-id");
+			                console.log("Album sélectionné:", albumId);
 			                fetchAlbumImages(albumId);
-			            }
-			        });
-			
-			        function fetchAlbumImages(albumId) {
-			            const portfolioGallery = document.getElementById("portfolio-gallery");
-			            portfolioGallery.style.display = "none"; // Masquer la liste des albums
-			
-			            // Vérifier s'il y a déjà un album affiché et le supprimer
-			            let existingAlbumContainer = document.getElementById("album-view");
-			            if (existingAlbumContainer) {
-			                existingAlbumContainer.remove();
-			            }
-			
-			            // Créer un conteneur pour afficher les images de l'album
-			            const albumContainer = document.createElement("div");
-			            albumContainer.id = "album-view";
-			            albumContainer.innerHTML = `
-			                <button id="close-album" class="button">Retour</button>
-			                <div id="album-content" class="gallery"></div>
-			            `;
-			
-			            // Insérer juste avant le footer
-			            document.body.insertBefore(albumContainer, document.querySelector("footer"));
-			
-			            // Charger les images depuis Google Drive
-			            fetch(`https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType,webContentLink)`)
-			                .then(response => response.json())
-			                .then(data => {
-			                    const albumContent = document.getElementById("album-content");
-			                    if (!data.files || data.files.length === 0) {
-			                        albumContent.innerHTML = "<p>Aucune image trouvée.</p>";
-			                        return;
-			                    }
-			
-			                    data.files.forEach(file => {
-			                        if (file.mimeType.startsWith("image/")) {
-			                            const img = document.createElement("img");
-			                            img.src = `https://drive.google.com/uc?export=view&id=${file.id}`;
-			                            img.alt = file.name;
-			                            img.style.width = "100%";
-			                            img.style.margin = "10px 0";
-			                            albumContent.appendChild(img);
-			                        }
-			                    });
-			                });
-			
-			            // Gestion du bouton "Retour"
-			            document.getElementById("close-album").addEventListener("click", function () {
-			                albumContainer.remove();
-			                portfolioGallery.style.display = "block";
 			            });
+			        });
+			    }
+			
+			    async function fetchAlbumImages(albumId) {
+			        console.log("Chargement des images pour l'album:", albumId);
+			        const portfolioGallery = document.getElementById("portfolio-gallery");
+			        portfolioGallery.style.display = "none";
+			
+			        let albumContainer = document.getElementById("album-view");
+			        if (!albumContainer) {
+			            albumContainer = document.createElement("div");
+			            albumContainer.id = "album-view";
+			            document.body.appendChild(albumContainer);
 			        }
-			    });
+			
+			        albumContainer.innerHTML = `
+			            <button id="close-album" class="button">Retour</button>
+			            <div id="album-content" class="gallery"></div>
+			        `;
+			
+			        try {
+			            const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType)`;
+			            const response = await fetch(apiUrl);
+			            if (!response.ok) throw new Error("Erreur lors du chargement des images.");
+			            
+			            const data = await response.json();
+			            console.log("Données récupérées pour l'album:", data);
+			
+			            const albumContent = document.getElementById("album-content");
+			            albumContent.innerHTML = "";
+			
+			            if (!data.files || data.files.length === 0) {
+			                albumContent.innerHTML = "<p>Aucune image trouvée.</p>";
+			                return;
+			            }
+			
+			            data.files.forEach(file => {
+			                if (file.mimeType.startsWith("image/")) {
+			                    const img = document.createElement("img");
+			                    img.src = `https://lh3.googleusercontent.com/d/${file.id}`;
+			                    img.alt = file.name;
+			                    img.style.maxWidth = "100%";
+			                    img.style.margin = "10px";
+			                    albumContent.appendChild(img);
+			                }
+			            });
+			
+			        } catch (error) {
+			            console.error("Erreur lors du chargement des images:", error);
+			            document.getElementById("album-content").innerHTML = "<p>Erreur de chargement des images.</p>";
+			        }
+			
+			        document.getElementById("close-album").addEventListener("click", function () {
+			            albumContainer.remove();
+			            portfolioGallery.style.display = "block";
+			        });
+			    }
+			
+			    document.addEventListener("DOMContentLoaded", loadPortfolio);
 			</script>
 			
 			<style>
