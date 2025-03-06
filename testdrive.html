@@ -157,6 +157,7 @@
 			    const FOLDER_ID = "1KNYudPsb9yYCUnTmkWgNV0wxSqhyCAnD";
 			
 			    async function loadPortfolio() {
+			        console.log("Chargement du portfolio...");
 			        const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType)`;
 			        try {
 			            const response = await fetch(apiUrl);
@@ -212,17 +213,20 @@
 			    }
 			
 			    function attachDiscoverEvents() {
+			        console.log("Attachement des événements sur les boutons Découvrir...");
 			        const albums = document.querySelectorAll(".discover-btn");
 			        albums.forEach(button => {
 			            button.addEventListener("click", function (event) {
 			                event.preventDefault();
 			                const albumId = this.getAttribute("data-album-id");
+			                console.log("Album sélectionné:", albumId);
 			                fetchAlbumImages(albumId);
 			            });
 			        });
 			    }
 			
 			    async function fetchAlbumImages(albumId) {
+			        console.log("Chargement des images pour l'album:", albumId);
 			        const portfolioGallery = document.getElementById("portfolio-gallery");
 			        portfolioGallery.style.display = "none";
 			
@@ -241,9 +245,12 @@
 			        try {
 			            const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType)`;
 			            const response = await fetch(apiUrl);
+			            if (!response.ok) throw new Error("Erreur lors du chargement des images.");
+			            
 			            const data = await response.json();
-			            const albumContent = document.getElementById("album-content");
+			            console.log("Données récupérées pour l'album:", data);
 			
+			            const albumContent = document.getElementById("album-content");
 			            albumContent.innerHTML = "";
 			
 			            if (!data.files || data.files.length === 0) {
@@ -264,6 +271,7 @@
 			
 			        } catch (error) {
 			            console.error("Erreur lors du chargement des images:", error);
+			            document.getElementById("album-content").innerHTML = "<p>Erreur de chargement des images.</p>";
 			        }
 			
 			        document.getElementById("close-album").addEventListener("click", function () {
