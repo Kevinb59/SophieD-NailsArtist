@@ -173,7 +173,7 @@
 			
 			            for (let album of data.files) {
 			                const albumId = album.id;
-			                const albumName = album.name.toUpperCase(); // Mettre en majuscule le titre de l'album
+			                const albumName = album.name.toUpperCase(); // Met en majuscule
 			                const albumApiUrl = `https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType,thumbnailLink,webContentLink)`;
 			
 			                const albumResponse = await fetch(albumApiUrl);
@@ -184,7 +184,7 @@
 			
 			                for (let file of albumData.files) {
 			                    if (file.name.toLowerCase() === "miniature.jpg") {
-			                        thumbnail = `https://lh3.googleusercontent.com/d/${file.id}`;
+			                        thumbnail = `https://drive.google.com/uc?id=${file.id}`;
 			                    } else if (file.name.toLowerCase() === "description.txt") {
 			                        const descriptionResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}`);
 			                        description = await descriptionResponse.text();
@@ -222,7 +222,7 @@
 			
 			        function fetchAlbumImages(albumId) {
 			            const portfolioGallery = document.getElementById("portfolio-gallery");
-			            portfolioGallery.style.display = "none"; // Masquer la liste des albums
+			            portfolioGallery.style.display = "none"; // Masquer les albums
 			
 			            // Vérifier s'il y a déjà un album affiché et le supprimer
 			            const existingAlbumContainer = document.getElementById("album-view");
@@ -230,7 +230,7 @@
 			                existingAlbumContainer.remove();
 			            }
 			
-			            // Créer un conteneur pour afficher les images de l'album
+			            // Créer un conteneur pour afficher l'album
 			            const albumContainer = document.createElement("div");
 			            albumContainer.id = "album-view";
 			            albumContainer.innerHTML = `
@@ -256,7 +256,7 @@
 			                            const img = document.createElement("img");
 			                            img.src = file.webContentLink;
 			                            img.alt = file.name;
-			                            img.style.width = "100%"; // Ajuster la taille correctement
+			                            img.style.width = "100%"; // Ajuste la taille correctement
 			                            img.style.margin = "10px 0";
 			                            albumContent.appendChild(img);
 			                        }
