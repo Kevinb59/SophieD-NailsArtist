@@ -175,7 +175,7 @@
 			            for (let album of data.files) {
 			                const albumId = album.id;
 			                const albumName = album.name.toUpperCase();
-			                const albumApiUrl = `https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType)`;
+			                const albumApiUrl = `https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType,thumbnailLink,webContentLink)`;
 			
 			                const albumResponse = await fetch(albumApiUrl);
 			                const albumData = await albumResponse.json();
@@ -232,9 +232,10 @@
 			
 			        let albumContainer = document.getElementById("album-view");
 			        if (!albumContainer) {
-			            albumContainer = document.createElement("div");
+			            albumContainer = document.createElement("section");
 			            albumContainer.id = "album-view";
-			            document.body.appendChild(albumContainer);
+			            albumContainer.classList.add("posts");
+			            portfolioGallery.parentNode.insertBefore(albumContainer, portfolioGallery);
 			        }
 			
 			        albumContainer.innerHTML = `
@@ -243,10 +244,10 @@
 			        `;
 			
 			        try {
-			            const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType)`;
+			            const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType,webContentLink)`;
 			            const response = await fetch(apiUrl);
 			            if (!response.ok) throw new Error("Erreur lors du chargement des images.");
-			            
+			
 			            const data = await response.json();
 			            console.log("Données récupérées pour l'album:", data);
 			
@@ -264,11 +265,10 @@
 			                    img.src = `https://lh3.googleusercontent.com/d/${file.id}`;
 			                    img.alt = file.name;
 			                    img.style.maxWidth = "100%";
-			                    img.style.margin = "10px";
+			                    img.style.margin = "10px 0";
 			                    albumContent.appendChild(img);
 			                }
 			            });
-			
 			        } catch (error) {
 			            console.error("Erreur lors du chargement des images:", error);
 			            document.getElementById("album-content").innerHTML = "<p>Erreur de chargement des images.</p>";
