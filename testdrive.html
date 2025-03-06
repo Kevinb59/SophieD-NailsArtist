@@ -153,120 +153,135 @@
 
 		<!-- Scripts -->
 			<script>
-				const API_KEY = "AIzaSyC8gSxfnMK58E4-rAxRO3OzDwCYQoDgo3c";
-				const FOLDER_ID = "1KNYudPsb9yYCUnTmkWgNV0wxSqhyCAnD";
-
-				async function loadPortfolio() {
-					const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType)`;
-					try {
-						const response = await fetch(apiUrl);
-						if (!response.ok) throw new Error("Problème de connexion avec l'API");
-						const data = await response.json();
-
-						const galleryContainer = document.getElementById("portfolio-gallery");
-						galleryContainer.innerHTML = "";
-
-						if (!data.files || data.files.length === 0) {
-							galleryContainer.innerHTML = "<p>Aucun album disponible.</p>";
-							return;
-						}
-
-						for (let album of data.files) {
-							const albumId = album.id;
-							const albumName = album.name;
-							const albumApiUrl = `https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType,thumbnailLink)`;
-
-							const albumResponse = await fetch(albumApiUrl);
-							const albumData = await albumResponse.json();
-
-							let thumbnail = "https://via.placeholder.com/300?text=Aucune+image";
-							let description = "Aucune description disponible.";
-
-							for (let file of albumData.files) {
-								if (file.name.toLowerCase() === "miniature.jpg") {
-									thumbnail = `https://lh3.googleusercontent.com/d/${file.id}`;
-								} else if (file.name.toLowerCase() === "description.txt") {
-									const descriptionResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}`);
-									description = await descriptionResponse.text();
-								}
-							}
-
-							const article = document.createElement("article");
-							article.innerHTML = `
-								<header>
-									<h2>${albumName}</h2>
-								</header>
-								<a href="#" class="image fit"><img src="${thumbnail}" alt="${albumName}" /></a>
-								<p style="text-align: center;">${description}</p>
-								<ul class="actions special">
-									<li><a href="#" class="button discover-btn" data-album-id="ALBUM_ID">Découvrir</a></li>
-								</ul>
-							`;
-							galleryContainer.appendChild(article);
-						}
-					} catch (error) {
-						console.error("Erreur lors du chargement des albums:", error);
-					}
-				}
-
-				document.addEventListener("DOMContentLoaded", loadPortfolio);
-			</script>
-			<script>
-			    document.addEventListener("DOMContentLoaded", function () {
-			        const portfolioGallery = document.getElementById("portfolio-gallery");
-			        const albums = document.querySelectorAll(".discover-btn");
+			    const API_KEY = "AIzaSyC8gSxfnMK58E4-rAxRO3OzDwCYQoDgo3c";
+			    const FOLDER_ID = "1KNYudPsb9yYCUnTmkWgNV0wxSqhyCAnD";
 			
+			    async function loadPortfolio() {
+			        const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType)`;
+			        try {
+			            const response = await fetch(apiUrl);
+			            if (!response.ok) throw new Error("Problème de connexion avec l'API");
+			            const data = await response.json();
+			
+			            const galleryContainer = document.getElementById("portfolio-gallery");
+			            galleryContainer.innerHTML = "";
+			
+			            if (!data.files || data.files.length === 0) {
+			                galleryContainer.innerHTML = "<p>Aucun album disponible.</p>";
+			                return;
+			            }
+			
+			            for (let album of data.files) {
+			                const albumId = album.id;
+			                const albumName = album.name.toUpperCase();
+			                const albumApiUrl = `https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType)`;
+			
+			                const albumResponse = await fetch(albumApiUrl);
+			                const albumData = await albumResponse.json();
+			
+			                let thumbnail = "https://via.placeholder.com/510x210?text=Image+Indisponible";
+			                let description = "Aucune description disponible.";
+			
+			                for (let file of albumData.files) {
+			                    if (file.name.toLowerCase() === "miniature.jpg") {
+			                        thumbnail = `https://lh3.googleusercontent.com/d/${file.id}`;
+			                    } else if (file.name.toLowerCase() === "description.txt") {
+			                        const descriptionResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}`);
+			                        description = await descriptionResponse.text();
+			                    }
+			                }
+			
+			                const article = document.createElement("article");
+			                article.innerHTML = `
+			                    <header>
+			                        <h2>${albumName}</h2>
+			                    </header>
+			                    <a href="#" class="image fit"><img src="${thumbnail}" alt="${albumName}" /></a>
+			                    <p class="description-text">${description}</p>
+			                    <ul class="actions special">
+			                        <li><a href="#" class="button discover-btn" data-album-id="${albumId}">Découvrir</a></li>
+			                    </ul>
+			                `;
+			                galleryContainer.appendChild(article);
+			            }
+			
+			            attachDiscoverEvents();
+			        } catch (error) {
+			            console.error("Erreur lors du chargement des albums:", error);
+			        }
+			    }
+			
+			    function attachDiscoverEvents() {
+			        const albums = document.querySelectorAll(".discover-btn");
 			        albums.forEach(button => {
 			            button.addEventListener("click", function (event) {
 			                event.preventDefault();
 			                const albumId = this.getAttribute("data-album-id");
-			
 			                fetchAlbumImages(albumId);
 			            });
 			        });
+			    }
 			
-			        function fetchAlbumImages(albumId) {
-			            // Masquer la liste des albums
-			            portfolioGallery.style.display = "none";
+			    async function fetchAlbumImages(albumId) {
+			        const portfolioGallery = document.getElementById("portfolio-gallery");
+			        portfolioGallery.style.display = "none";
 			
-			            // Afficher la galerie d'images pour l'album
-			            const albumContainer = document.createElement("div");
+			        let albumContainer = document.getElementById("album-view");
+			        if (!albumContainer) {
+			            albumContainer = document.createElement("div");
 			            albumContainer.id = "album-view";
-			            albumContainer.innerHTML = `
-			                <button id="close-album" class="button">Retour</button>
-			                <div id="album-content" class="gallery"></div>
-			            `;
 			            document.body.appendChild(albumContainer);
-			
-			            // Charger les images
-			            fetch(`https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType,webContentLink)`)
-			                .then(response => response.json())
-			                .then(data => {
-			                    const albumContent = document.getElementById("album-content");
-			                    if (!data.files || data.files.length === 0) {
-			                        albumContent.innerHTML = "<p>Aucune image trouvée.</p>";
-			                        return;
-			                    }
-			
-			                    data.files.forEach(file => {
-			                        if (file.mimeType.startsWith("image/")) {
-			                            const img = document.createElement("img");
-			                            img.src = file.webContentLink;
-			                            img.alt = file.name;
-			                            img.style.maxWidth = "100%";
-			                            img.style.margin = "10px";
-			                            albumContent.appendChild(img);
-			                        }
-			                    });
-			                });
-			
-			            // Gestion du bouton "Retour"
-			            document.getElementById("close-album").addEventListener("click", function () {
-			                albumContainer.remove();
-			                portfolioGallery.style.display = "block";
-			            });
 			        }
-			    });
+			
+			        albumContainer.innerHTML = `
+			            <button id="close-album" class="button">Retour</button>
+			            <div id="album-content" class="gallery"></div>
+			        `;
+			
+			        try {
+			            const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType)`;
+			            const response = await fetch(apiUrl);
+			            const data = await response.json();
+			            const albumContent = document.getElementById("album-content");
+			
+			            albumContent.innerHTML = "";
+			
+			            if (!data.files || data.files.length === 0) {
+			                albumContent.innerHTML = "<p>Aucune image trouvée.</p>";
+			                return;
+			            }
+			
+			            data.files.forEach(file => {
+			                if (file.mimeType.startsWith("image/")) {
+			                    const img = document.createElement("img");
+			                    img.src = `https://lh3.googleusercontent.com/d/${file.id}`;
+			                    img.alt = file.name;
+			                    img.style.maxWidth = "100%";
+			                    img.style.margin = "10px";
+			                    albumContent.appendChild(img);
+			                }
+			            });
+			
+			        } catch (error) {
+			            console.error("Erreur lors du chargement des images:", error);
+			        }
+			
+			        document.getElementById("close-album").addEventListener("click", function () {
+			            albumContainer.remove();
+			            portfolioGallery.style.display = "block";
+			        });
+			    }
+			
+			    document.addEventListener("DOMContentLoaded", loadPortfolio);
 			</script>
+			
+			<style>
+			    .description-text {
+			        text-align: center;
+			        font-size: 1rem;
+			        font-style: italic;
+			        color: #444;
+			    }
+			</style>
 	</body>
 </html>
