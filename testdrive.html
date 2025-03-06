@@ -235,17 +235,16 @@
 			            albumContainer = document.createElement("section");
 			            albumContainer.id = "album-view";
 			            albumContainer.classList.add("posts");
-			            portfolioGallery.parentNode.insertBefore(albumContainer, portfolioGallery);
+			            portfolioGallery.parentNode.insertBefore(albumContainer, portfolioGallery.nextSibling);
 			        }
 			
 			        albumContainer.innerHTML = `
 			            <ul class="actions special">
-			                <li><a href="#" id="close-album" class="button primary icon solid fa-arrow-left">Retour aux albums</a></li>
+			                <li><a href="#" id="close-album" class="button primary icon solid fa-arrow-left">Retour</a></li>
 			            </ul>
 			            <div id="album-content" class="gallery"></div>
 			        `;
 			
-			        // Faire défiler la page en haut lors de l'ouverture d'un album
 			        window.scrollTo({ top: 0, behavior: "smooth" });
 			
 			        try {
@@ -279,12 +278,9 @@
 			            document.getElementById("album-content").innerHTML = "<p>Erreur de chargement des images.</p>";
 			        }
 			
-			        document.getElementById("close-album").addEventListener("click", function (event) {
-			            event.preventDefault();
+			        document.getElementById("close-album").addEventListener("click", function () {
 			            albumContainer.remove();
-			            portfolioGallery.style.display = "block";
-			
-			            // Faire défiler la page en haut lors du retour aux albums
+			            portfolioGallery.style.display = "grid";
 			            window.scrollTo({ top: 0, behavior: "smooth" });
 			        });
 			    }
