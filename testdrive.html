@@ -240,10 +240,13 @@
 			
 			        albumContainer.innerHTML = `
 			            <ul class="actions special">
-        				<li><a href="#" id="close-album" class="button primary icon solid fa-arrow-left">Retour aux albums</a></li>
-    				    </ul>
+			                <li><a href="#" id="close-album" class="button primary icon solid fa-arrow-left">Retour aux albums</a></li>
+			            </ul>
 			            <div id="album-content" class="gallery"></div>
 			        `;
+			
+			        // Faire défiler la page en haut lors de l'ouverture d'un album
+			        window.scrollTo({ top: 0, behavior: "smooth" });
 			
 			        try {
 			            const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType,webContentLink)`;
@@ -276,15 +279,18 @@
 			            document.getElementById("album-content").innerHTML = "<p>Erreur de chargement des images.</p>";
 			        }
 			
-			        document.getElementById("close-album").addEventListener("click", function () {
+			        document.getElementById("close-album").addEventListener("click", function (event) {
+			            event.preventDefault();
 			            albumContainer.remove();
 			            portfolioGallery.style.display = "block";
+			
+			            // Faire défiler la page en haut lors du retour aux albums
+			            window.scrollTo({ top: 0, behavior: "smooth" });
 			        });
 			    }
 			
 			    document.addEventListener("DOMContentLoaded", loadPortfolio);
-			</script>
-			
+			</script>			
 			<style>
 			    .description-text {
 			        text-align: center;
