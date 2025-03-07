@@ -288,39 +288,87 @@
 			    }
 			
 			    function openFullscreen(src) {
+			        const overlay = document.createElement("div");
+			        overlay.classList.add("fullscreen-overlay");
+			
 			        const modal = document.createElement("div");
 			        modal.classList.add("fullscreen-modal");
-			        modal.innerHTML = `<img src="${src}" class="fullscreen-image" /><span class="close-modal">&times;</span>`;
+			
+			        modal.innerHTML = `
+			            <img src="${src}" class="fullscreen-image" />
+			            <span class="close-modal">&times;</span>
+			        `;
+			
+			        document.body.appendChild(overlay);
 			        document.body.appendChild(modal);
-			        modal.querySelector(".close-modal").addEventListener("click", () => modal.remove());
+			
+			        overlay.addEventListener("click", closeFullscreen);
+			        modal.querySelector(".close-modal").addEventListener("click", closeFullscreen);
+			    }
+			
+			    function closeFullscreen() {
+			        document.querySelector(".fullscreen-overlay")?.remove();
+			        document.querySelector(".fullscreen-modal")?.remove();
 			    }
 			
 			    document.addEventListener("DOMContentLoaded", loadPortfolio);
 			</script>
 			
 			<style>
+			    /* Galerie */
 			    .gallery {
 			        display: grid;
 			        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
 			        gap: 10px;
 			    }
+			    
+			    /* Miniatures */
 			    .thumbnail {
 			        width: 100px;
 			        height: 100px;
 			        object-fit: cover;
 			        cursor: pointer;
 			    }
+			
+			    /* Plein écran */
+			    .fullscreen-overlay {
+			        position: fixed;
+			        top: 0;
+			        left: 0;
+			        width: 100vw;
+			        height: 100vh;
+			        background: rgba(0, 0, 0, 0.5);
+			        backdrop-filter: blur(10px);
+			        z-index: 1000;
+			    }
+			
 			    .fullscreen-modal {
-			        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-			        background: rgba(0, 0, 0, 0.8); display: flex; align-items: center; justify-content: center;
+			        position: fixed;
+			        top: 50%;
+			        left: 50%;
+			        transform: translate(-50%, -50%);
+			        max-width: 90%;
+			        max-height: 90%;
+			        background: rgba(0, 0, 0, 0.8);
+			        padding: 20px;
+			        border-radius: 10px;
+			        z-index: 1001;
 			    }
-			    .fullscreen-image { max-width: 90%; max-height: 90%;
+			
+			    .fullscreen-image {
+			        max-width: 100%;
+			        max-height: 100%;
+			        border-radius: 5px;
 			    }
-			    .description-text {
-			        text-align: center;
-			        font-size: 1rem;
-			        font-style: italic;
-			        color: #444;
+			
+			    .close-modal {
+			        position: absolute;
+			        top: 10px;
+			        right: 20px;
+			        font-size: 40px;
+			        color: white;
+			        cursor: pointer;
+			        font-weight: bold;
 			    }
 			</style>
 	</body>
