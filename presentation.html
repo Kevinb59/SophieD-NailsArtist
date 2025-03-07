@@ -1,0 +1,164 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>SophieD - Nail Artist</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Accueil</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">Accueil</a></li>
+							<li><a href="prestations.html">Prestations & Rendez-vous</a></li>
+							<li class="active"><a href="presentation.html">Présentation</a></li>
+							<li><a href="portfolio.html">Portfolio</a></li>
+							<li><a href="avis.html">Avis</a></li>
+						</ul>
+						<ul class="icons">
+							<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
+							<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
+							<li><a href="#" class="icon brands fa-tiktok"><span class="label">TikTok</span></a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+						<section class="post">
+							<header class="major">
+								<h1>PRESENTATION</h1>
+							</header>
+              
+						</section>
+					</div>
+
+				<!-- Footer -->
+					<footer id="footer">
+						<section>
+							<form id="contact-form" action="https://formsubmit.co/sophied.nailartist@gmail.com" method="POST">
+							    <div class="fields">
+							        <div class="field">
+							            <label for="name">Nom</label>
+							            <input type="text" name="name" id="name" required>
+							        </div>
+							        <div class="field">
+							            <label for="email">Email</label>
+							            <input type="email" name="email" id="email" required>
+							        </div>
+							        <div class="field">
+							            <label for="message">Message</label>
+							            <textarea name="message" id="message" rows="3" required></textarea>
+							        </div>
+							    </div>
+							    
+							    <!-- Champs cachés pour configurer l'email -->
+							    <input type="hidden" name="_subject" value="Message rapide depuis votre site">
+							    <input type="hidden" name="_captcha" value="false"> <!-- Désactive le CAPTCHA -->
+							    
+							    <ul class="actions">
+							        <li><button type="submit" id="submit-btn">Envoyer</button></li>
+							    </ul>
+							</form>
+							
+							<!-- JavaScript -->
+							<script>
+							    document.getElementById("contact-form").addEventListener("submit", function(event) {
+							        event.preventDefault(); // Empêche le rechargement de la page
+							
+							        let form = this;
+							        let submitBtn = document.getElementById("submit-btn");
+							
+							        // Désactive le bouton pour éviter les envois multiples
+							        submitBtn.disabled = true;
+							        submitBtn.textContent = "Envoi en cours...";
+							
+							        // Envoi du formulaire
+							        fetch(form.action, {
+							            method: "POST",
+							            body: new FormData(form),
+							        })
+							        .then(response => {
+							            if (response.ok) {
+							                // Si l'envoi réussit, on vide le formulaire et change le bouton
+							                form.reset();
+							                submitBtn.textContent = "Message envoyé ✅";
+							            } else {
+							                submitBtn.textContent = "Erreur ❌";
+							                submitBtn.disabled = false;
+							            }
+							        })
+							        .catch(error => {
+							            console.error("Erreur:", error);
+							            submitBtn.textContent = "Erreur ❌";
+							            submitBtn.disabled = false;
+							        });
+							    });
+							</script>
+						</section>
+						<section class="split contact">
+							<section class="alt">
+								<h3>Adresse</h3>
+								<p>
+        								<a href="geo:0,0?q=866+Rue+Roger+Salengro,59263+Houplin+Ancoisne"
+           								onclick="if (!navigator.userAgent.match(/Android|iPhone|iPad/i)) { this.href='https://www.google.com/maps?q=866+Rue+Roger+Salengro,59263+Houplin+Ancoisne'; }">
+           								866 Rue Roger Salengro<br />
+									59263 Houplin Ancoisne
+        								</a>
+								</p>
+							</section>
+							<section>
+								<h3>Téléphone</h3>
+								<p>
+									<a href="tel:+33622923254">Appeler</a><br>
+									<a href="sms:+33622923254">Envoyer un SMS</a>
+								</p>
+							</section>
+							<section>
+								<h3>Email</h3>
+								<p><a href="mailto:contact@sophied-nailartist.fr">contact@sophied-nailartist.fr</a></p>
+							</section>
+							<section>
+								<h3>Social</h3>
+								<ul class="icons alt">
+									<li><a href="#" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>
+									<li><a href="#" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>
+									<li><a href="#" class="icon brands alt fa-tiktok"><span class="label">TikTok</span></a></li>
+								</ul>
+							</section>
+						</section>
+					</footer>
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; SophieD - Nail Artist</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
