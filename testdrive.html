@@ -330,45 +330,59 @@
 			        cursor: pointer;
 			    }
 			
-			    /* Plein écran */
+			    /* Arrière-plan flou en plein écran */
 			    .fullscreen-overlay {
 			        position: fixed;
 			        top: 0;
 			        left: 0;
 			        width: 100vw;
 			        height: 100vh;
-			        background: rgba(0, 0, 0, 0.5);
+			        background: rgba(0, 0, 0, 0.7);
 			        backdrop-filter: blur(10px);
 			        z-index: 1000;
+			        display: flex;
+			        align-items: center;
+			        justify-content: center;
 			    }
 			
+			    /* Conteneur de l'image plein écran */
 			    .fullscreen-modal {
-			        position: fixed;
-			        top: 50%;
-			        left: 50%;
-			        transform: translate(-50%, -50%);
-			        max-width: 90%;
-			        max-height: 90%;
-			        background: rgba(0, 0, 0, 0.8);
-			        padding: 20px;
-			        border-radius: 10px;
-			        z-index: 1001;
+			        position: relative;
+			        max-width: 95vw; /* L'image peut occuper jusqu'à 95% de la largeur de l'écran */
+			        max-height: 95vh; /* L'image peut occuper jusqu'à 95% de la hauteur de l'écran */
+			        display: flex;
+			        align-items: center;
+			        justify-content: center;
 			    }
 			
+			    /* Image en plein écran */
 			    .fullscreen-image {
-			        max-width: 100%;
-			        max-height: 100%;
+			        width: auto;
+			        height: auto;
+			        max-width: 95vw; /* Adapte l'image à l'écran */
+			        max-height: 95vh;
 			        border-radius: 5px;
+			        object-fit: contain; /* Assure un affichage sans déformation */
+			        background: black;
 			    }
 			
+			    /* Bouton de fermeture */
 			    .close-modal {
 			        position: absolute;
-			        top: 10px;
+			        top: 15px;
 			        right: 20px;
 			        font-size: 40px;
 			        color: white;
 			        cursor: pointer;
 			        font-weight: bold;
+			        background: rgba(0, 0, 0, 0.5);
+			        padding: 5px 10px;
+			        border-radius: 5px;
+			    }
+
+			    /* Ajoute un effet au clic */
+			    .close-modal:hover {
+			        background: rgba(255, 255, 255, 0.3);
 			    }
 			</style>
 		
