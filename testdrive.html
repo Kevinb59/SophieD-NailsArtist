@@ -153,237 +153,227 @@
 
 		<!-- Scripts -->
 			<script>
-			    const API_KEY = "AIzaSyC8gSxfnMK58E4-rAxRO3OzDwCYQoDgo3c";
-			    const FOLDER_ID = "1KNYudPsb9yYCUnTmkWgNV0wxSqhyCAnD";
-			
-			    async function loadPortfolio() {
-			        console.log("Chargement du portfolio...");
-			        const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType)`;
-			        try {
-			            const response = await fetch(apiUrl);
-			            if (!response.ok) throw new Error("Problème de connexion avec l'API");
-			            const data = await response.json();
-			
-			            const galleryContainer = document.getElementById("portfolio-gallery");
-			            galleryContainer.innerHTML = "";
-			
-			            if (!data.files || data.files.length === 0) {
-			                galleryContainer.innerHTML = "<p>Aucun album disponible.</p>";
-			                return;
-			            }
-			
-			            for (let album of data.files) {
-			                const albumId = album.id;
-			                const albumName = album.name.toUpperCase();
-			                const albumApiUrl = `https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType,thumbnailLink,webContentLink)`;
-			
-			                const albumResponse = await fetch(albumApiUrl);
-			                const albumData = await albumResponse.json();
-			
-			                let thumbnail = "https://via.placeholder.com/510x210?text=Image+Indisponible";
-			                let description = "Aucune description disponible.";
-			
-			                for (let file of albumData.files) {
-			                    if (file.name.toLowerCase() === "miniature.jpg") {
-			                        thumbnail = `https://lh3.googleusercontent.com/d/${file.id}`;
-			                    } else if (file.name.toLowerCase() === "description.txt") {
-			                        const descriptionResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}`);
-			                        description = await descriptionResponse.text();
-			                    }
-			                }
-			
-			                const article = document.createElement("article");
-			                article.innerHTML = `
-			                    <header>
-			                        <h2>${albumName}</h2>
-			                    </header>
-			                    <a href="#" class="image fit"><img src="${thumbnail}" alt="${albumName}" /></a>
-			                    <p class="description-text">${description}</p>
-			                    <ul class="actions special">
-			                        <li><a href="#" class="button discover-btn" data-album-id="${albumId}">Découvrir</a></li>
-			                    </ul>
-			                `;
-			                galleryContainer.appendChild(article);
-			            }
-			
-			            attachDiscoverEvents();
-			        } catch (error) {
-			            console.error("Erreur lors du chargement des albums:", error);
-			        }
-			    }
-			
-			    function attachDiscoverEvents() {
-			        console.log("Attachement des événements sur les boutons Découvrir...");
-			        const albums = document.querySelectorAll(".discover-btn");
-			        albums.forEach(button => {
-			            button.addEventListener("click", function (event) {
-			                event.preventDefault();
-			                const albumId = this.getAttribute("data-album-id");
-			                console.log("Album sélectionné:", albumId);
-			                fetchAlbumImages(albumId);
-			            });
-			        });
-			    }
-			
-			    async function fetchAlbumImages(albumId) {
-			        console.log("Chargement des images pour l'album:", albumId);
-			        const portfolioGallery = document.getElementById("portfolio-gallery");
-			        portfolioGallery.style.display = "none";
-			
-			        let albumContainer = document.getElementById("album-view");
-			        if (!albumContainer) {
-			            albumContainer = document.createElement("section");
-			            albumContainer.id = "album-view";
-			            albumContainer.classList.add("posts");
-			            portfolioGallery.parentNode.insertBefore(albumContainer, portfolioGallery.nextSibling);
-			        }
-			
-			        albumContainer.innerHTML = `
-			            <ul class="actions special">
-			                <li><a href="#" id="close-album" class="button primary icon solid fa-arrow-left">Retour aux albums</a></li>
-			            </ul>
-			            <div id="album-content" class="gallery"></div>
-			        `;
-			
-			        window.scrollTo({ top: 0, behavior: "smooth" });
-			
-			        try {
-			            const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType,webContentLink)`;
-			            const response = await fetch(apiUrl);
-			            if (!response.ok) throw new Error("Erreur lors du chargement des images.");
-			
-			            const data = await response.json();
-			            console.log("Données récupérées pour l'album:", data);
-			
-			            const albumContent = document.getElementById("album-content");
-			            albumContent.innerHTML = "";
-			
-			            if (!data.files || data.files.length === 0) {
-			                albumContent.innerHTML = "<p>Aucune image trouvée.</p>";
-			                return;
-			            }
-			
-			            data.files.forEach(file => {
-			                if (file.mimeType.startsWith("image/")) {
-			                    const img = document.createElement("img");
-			                    img.src = `https://lh3.googleusercontent.com/d/${file.id}`;
-			                    img.alt = file.name;
-			                    img.classList.add("thumbnail");
-			                    img.addEventListener("click", function() {
-			                        openFullscreen(this.src);
-			                    });
-			                    albumContent.appendChild(img);
-			                }
-			            });
-			        } catch (error) {
-			            console.error("Erreur lors du chargement des images:", error);
-			            document.getElementById("album-content").innerHTML = "<p>Erreur de chargement des images.</p>";
-			        }
-			
-			        document.getElementById("close-album").addEventListener("click", function () {
-			            albumContainer.remove();
-			            portfolioGallery.style.display = "grid";
-			            window.scrollTo({ top: 0, behavior: "smooth" });
-			        });
-			    }
-			
-			    function openFullscreen(src) {
-			        const overlay = document.createElement("div");
-			        overlay.classList.add("fullscreen-overlay");
-			
-			        const modal = document.createElement("div");
-			        modal.classList.add("fullscreen-modal");
-			
-			        modal.innerHTML = `
-			            <img src="${src}" class="fullscreen-image" />
-			            <span class="close-modal">&times;</span>
-			        `;
-			
-			        document.body.appendChild(overlay);
-			        document.body.appendChild(modal);
-			
-			        overlay.addEventListener("click", closeFullscreen);
-			        modal.querySelector(".close-modal").addEventListener("click", closeFullscreen);
-			    }
-			
-			    function closeFullscreen() {
-			        document.querySelector(".fullscreen-overlay")?.remove();
-			        document.querySelector(".fullscreen-modal")?.remove();
-			    }
-			
-			    document.addEventListener("DOMContentLoaded", loadPortfolio);
+				const API_KEY = "AIzaSyC8gSxfnMK58E4-rAxRO3OzDwCYQoDgo3c";
+				const FOLDER_ID = "1KNYudPsb9yYCUnTmkWgNV0wxSqhyCAnD";
+				
+				async function loadPortfolio() {
+				    console.log("Chargement du portfolio...");
+				    const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType)`;
+				    try {
+				        const response = await fetch(apiUrl);
+				        if (!response.ok) throw new Error("Problème de connexion avec l'API");
+				        const data = await response.json();
+				
+				        const galleryContainer = document.getElementById("portfolio-gallery");
+				        galleryContainer.innerHTML = "";
+				
+				        if (!data.files || data.files.length === 0) {
+				            galleryContainer.innerHTML = "<p>Aucun album disponible.</p>";
+				            return;
+				        }
+				
+				        for (let album of data.files) {
+				            const albumId = album.id;
+				            const albumName = album.name.toUpperCase();
+				            const albumApiUrl = `https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType,thumbnailLink,webContentLink)`;
+				
+				            const albumResponse = await fetch(albumApiUrl);
+				            const albumData = await albumResponse.json();
+				
+				            let thumbnail = "https://via.placeholder.com/510x210?text=Image+Indisponible";
+				            let description = "Aucune description disponible.";
+				
+				            for (let file of albumData.files) {
+				                if (file.name.toLowerCase() === "miniature.jpg") {
+				                    thumbnail = `https://lh3.googleusercontent.com/d/${file.id}`;
+				                } else if (file.name.toLowerCase() === "description.txt") {
+				                    const descriptionResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}`);
+				                    description = await descriptionResponse.text();
+				                }
+				            }
+				
+				            const article = document.createElement("article");
+				            article.innerHTML = `
+				                <header>
+				                    <h2>${albumName}</h2>
+				                </header>
+				                <a href="#" class="image fit"><img src="${thumbnail}" alt="${albumName}" /></a>
+				                <p class="description-text">${description}</p>
+				                <ul class="actions special">
+				                    <li><a href="#" class="button discover-btn" data-album-id="${albumId}">Découvrir</a></li>
+				                </ul>
+				            `;
+				            galleryContainer.appendChild(article);
+				        }
+				
+				        attachDiscoverEvents();
+				    } catch (error) {
+				        console.error("Erreur lors du chargement des albums:", error);
+				    }
+				}
+				
+				function attachDiscoverEvents() {
+				    console.log("Attachement des événements sur les boutons Découvrir...");
+				    const albums = document.querySelectorAll(".discover-btn");
+				    albums.forEach(button => {
+				        button.addEventListener("click", function (event) {
+				            event.preventDefault();
+				            const albumId = this.getAttribute("data-album-id");
+				            console.log("Album sélectionné:", albumId);
+				            fetchAlbumImages(albumId);
+				        });
+				    });
+				}
+				
+				async function fetchAlbumImages(albumId) {
+				    console.log("Chargement des images pour l'album:", albumId);
+				    const portfolioGallery = document.getElementById("portfolio-gallery");
+				    portfolioGallery.style.display = "none";
+				
+				    let albumContainer = document.getElementById("album-view");
+				    if (!albumContainer) {
+				        albumContainer = document.createElement("section");
+				        albumContainer.id = "album-view";
+				        albumContainer.classList.add("posts");
+				        portfolioGallery.parentNode.insertBefore(albumContainer, portfolioGallery.nextSibling);
+				    }
+				
+				    albumContainer.innerHTML = `
+				        <ul class="actions special">
+				            <li><a href="#" id="close-album" class="button primary icon solid fa-arrow-left">Retour aux albums</a></li>
+				        </ul>
+				        <div id="album-content" class="gallery"></div>
+				    `;
+				
+				    window.scrollTo({ top: 0, behavior: "smooth" });
+				
+				    try {
+				        const apiUrl = `https://www.googleapis.com/drive/v3/files?q='${albumId}'+in+parents&key=${API_KEY}&fields=files(id,name,mimeType,webContentLink)`;
+				        const response = await fetch(apiUrl);
+				        if (!response.ok) throw new Error("Erreur lors du chargement des images.");
+				
+				        const data = await response.json();
+				        console.log("Données récupérées pour l'album:", data);
+				
+				        const albumContent = document.getElementById("album-content");
+				        albumContent.innerHTML = "";
+				
+				        if (!data.files || data.files.length === 0) {
+				            albumContent.innerHTML = "<p>Aucune image trouvée.</p>";
+				            return;
+				        }
+				
+				        data.files.forEach(file => {
+				            if (file.mimeType.startsWith("image/")) {
+				                const img = document.createElement("img");
+				                img.src = `https://lh3.googleusercontent.com/d/${file.id}`;
+				                img.alt = file.name;
+				                img.classList.add("thumbnail");
+				                img.addEventListener("click", function() {
+				                    openFullscreen(this.src);
+				                });
+				                albumContent.appendChild(img);
+				            }
+				        });
+				    } catch (error) {
+				        console.error("Erreur lors du chargement des images:", error);
+				        document.getElementById("album-content").innerHTML = "<p>Erreur de chargement des images.</p>";
+				    }
+				
+				    document.getElementById("close-album").addEventListener("click", function () {
+				        albumContainer.remove();
+				        portfolioGallery.style.display = "grid";
+				        window.scrollTo({ top: 0, behavior: "smooth" });
+				    });
+				}
+				
+				function openFullscreen(src) {
+				    const overlay = document.createElement("div");
+				    overlay.classList.add("fullscreen-overlay");
+				
+				    const modal = document.createElement("div");
+				    modal.classList.add("fullscreen-modal");
+				
+				    modal.innerHTML = `
+				        <img src="${src}" class="fullscreen-image" />
+				        <span class="close-modal">&times;</span>
+				    `;
+				
+				    document.body.appendChild(overlay);
+				    document.body.appendChild(modal);
+				
+				    overlay.addEventListener("click", closeFullscreen);
+				    modal.querySelector(".close-modal").addEventListener("click", closeFullscreen);
+				}
+				
+				function closeFullscreen() {
+				    document.querySelector(".fullscreen-overlay")?.remove();
+				    document.querySelector(".fullscreen-modal")?.remove();
+				}
+				
+				document.addEventListener("DOMContentLoaded", loadPortfolio);
 			</script>
 			
 			<style>
-			    /* Galerie */
-			    .gallery {
-			        display: grid;
-			        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-			        gap: 10px;
-			    }
-			    
-			    /* Miniatures */
-			    .thumbnail {
-			        width: 100px;
-			        height: 100px;
-			        object-fit: cover;
-			        cursor: pointer;
-			    }
-			
-			    /* Arrière-plan flou en plein écran */
-			    .fullscreen-overlay {
-			        position: fixed;
-			        top: 0;
-			        left: 0;
-			        width: 100vw;
-			        height: 100vh;
-			        background: rgba(0, 0, 0, 0.7);
-			        backdrop-filter: blur(10px);
-			        z-index: 1000;
-			        display: flex;
-			        align-items: center;
-			        justify-content: center;
-			    }
-			
-			    /* Conteneur de l'image plein écran */
-			    .fullscreen-modal {
-			        position: relative;
-			        max-width: 95vw; /* L'image peut occuper jusqu'à 95% de la largeur de l'écran */
-			        max-height: 95vh; /* L'image peut occuper jusqu'à 95% de la hauteur de l'écran */
-			        display: flex;
-			        align-items: center;
-			        justify-content: center;
-			    }
-			
-			    /* Image en plein écran */
-			    .fullscreen-image {
-			        width: auto;
-			        height: auto;
-			        max-width: 95vw; /* Adapte l'image à l'écran */
-			        max-height: 95vh;
-			        border-radius: 5px;
-			        object-fit: contain; /* Assure un affichage sans déformation */
-			        background: black;
-			    }
-			
-			    /* Bouton de fermeture */
-			    .close-modal {
-			        position: absolute;
-			        top: 15px;
-			        right: 20px;
-			        font-size: 40px;
-			        color: white;
-			        cursor: pointer;
-			        font-weight: bold;
-			        background: rgba(0, 0, 0, 0.5);
-			        padding: 5px 10px;
-			        border-radius: 5px;
-			    }
-
-			    /* Ajoute un effet au clic */
-			    .close-modal:hover {
-			        background: rgba(255, 255, 255, 0.3);
-			    }
+				/* Galerie */
+				.gallery {
+				    display: grid;
+				    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+				    gap: 10px;
+				}
+				
+				/* Miniatures */
+				.thumbnail {
+				    width: 100px;
+				    height: 100px;
+				    object-fit: cover;
+				    cursor: pointer;
+				}
+				
+				/* Arrière-plan flou en plein écran */
+				.fullscreen-overlay {
+				    position: fixed;
+				    top: 0;
+				    left: 0;
+				    width: 100vw;
+				    height: 100vh;
+				    background: rgba(0, 0, 0, 0.7);
+				    backdrop-filter: blur(10px);
+				    z-index: 999;
+				    display: flex;
+				    align-items: center;
+				    justify-content: center;
+				}
+				
+				/* Conteneur de l'image plein écran */
+				.fullscreen-modal {
+				    position: fixed;
+				    top: 50%;
+				    left: 50%;
+				    transform: translate(-50%, -50%);
+				    max-width: 95vw;
+				    max-height: 95vh;
+				    z-index: 1000;
+				    display: flex;
+				    align-items: center;
+				    justify-content: center;
+				}
+				
+				/* Image en plein écran */
+				.fullscreen-image {
+				    max-width: 100%;
+				    max-height: 100%;
+				}
+				
+				/* Bouton de fermeture */
+				.close-modal {
+				    position: absolute;
+				    top: 15px;
+				    right: 20px;
+				    font-size: 40px;
+				    color: white;
+				    cursor: pointer;
+				}
 			</style>
 		
 			<script src="assets/js/jquery.min.js"></script>
