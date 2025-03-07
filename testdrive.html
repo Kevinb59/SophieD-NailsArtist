@@ -268,8 +268,10 @@
 			                    const img = document.createElement("img");
 			                    img.src = `https://lh3.googleusercontent.com/d/${file.id}`;
 			                    img.alt = file.name;
-			                    img.style.maxWidth = "100%";
-			                    img.style.margin = "10px 0";
+			                    img.classList.add("thumbnail");
+			                    img.addEventListener("click", function() {
+			                        openFullscreen(this.src);
+			                    });
 			                    albumContent.appendChild(img);
 			                }
 			            });
@@ -285,9 +287,35 @@
 			        });
 			    }
 			
+			    function openFullscreen(src) {
+			        const modal = document.createElement("div");
+			        modal.classList.add("fullscreen-modal");
+			        modal.innerHTML = `<img src="${src}" class="fullscreen-image" /><span class="close-modal">&times;</span>`;
+			        document.body.appendChild(modal);
+			        modal.querySelector(".close-modal").addEventListener("click", () => modal.remove());
+			    }
+			
 			    document.addEventListener("DOMContentLoaded", loadPortfolio);
-			</script>			
+			</script>
+			
 			<style>
+			    .gallery {
+			        display: grid;
+			        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+			        gap: 10px;
+			    }
+			    .thumbnail {
+			        width: 100px;
+			        height: 100px;
+			        object-fit: cover;
+			        cursor: pointer;
+			    }
+			    .fullscreen-modal {
+			        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+			        background: rgba(0, 0, 0, 0.8); display: flex; align-items: center; justify-content: center;
+			    }
+			    .fullscreen-image { max-width: 90%; max-height: 90%;
+			    }
 			    .description-text {
 			        text-align: center;
 			        font-size: 1rem;
