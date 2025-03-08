@@ -1,11 +1,11 @@
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+import Stripe from "stripe";
 
 export default async function handler(req, res) {
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Méthode non autorisée" });
     }
 
-    res.setHeader("Access-Control-Allow-Origin", "*"); // Ajout de CORS pour éviter les blocages
+    res.setHeader("Access-Control-Allow-Origin", "*"); 
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
@@ -15,6 +15,8 @@ export default async function handler(req, res) {
         if (!amount || amount <= 0) {
             return res.status(400).json({ error: "Montant invalide" });
         }
+
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
         // Création du lien de paiement Stripe
         const paymentLink = await stripe.paymentLinks.create({
