@@ -53,7 +53,7 @@
             loadingText.style.display = "block";
 
             try {
-                const response = await fetch("/api/index", {  // Vérifie que le chemin correspond au bon fichier JS
+                const response = await fetch("/api/create-payment-link", {  // Vérifie que le chemin correspond au bon fichier JS
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ amount: amount * 100 }) // Convertir en centimes
