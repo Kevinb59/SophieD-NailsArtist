@@ -1,8 +1,8 @@
 {
-  "rewrites": [
-    {
-      "source": "/api/create-payment-link",
-      "destination": "/api/create-payment-link.js"
+  "version": 2,
+  "functions": {
+    "api/*.js": {
+      "runtime": "nodejs18.x"
     }
-  ]
+  }
 }
