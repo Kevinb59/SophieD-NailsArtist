@@ -33,12 +33,13 @@ export default async function handler(req, res) {
             },
         });
 
-        // Créer le lien de paiement avec le prix généré
+        // Créer le lien de paiement avec codes promo activés
         const paymentLink = await stripe.paymentLinks.create({
             line_items: [{
                 price: price.id,
                 quantity: 1,
             }],
+            allow_promotion_codes: true, // ✅ Permettre les codes promo sur Stripe
         });
 
         console.log("Lien généré :", paymentLink.url);
