@@ -24,13 +24,19 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'Montant invalide' });
         }
 
+        // Créer un prix temporaire pour le paiement
+        const price = await stripe.prices.create({
+            unit_amount: Math.round(amount * 100), // Convertir en centimes
+            currency: 'eur',
+            product_data: {
+                name: 'Paiement personnalisé',
+            },
+        });
+
+        // Créer le lien de paiement avec le prix généré
         const paymentLink = await stripe.paymentLinks.create({
             line_items: [{
-                price_data: {
-                    currency: 'eur',
-                    product_data: { name: 'Paiement personnalisé' },
-                    unit_amount: Math.round(amount * 100), // Convertir en centimes
-                },
+                price: price.id,
                 quantity: 1,
             }],
         });
