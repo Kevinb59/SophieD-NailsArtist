@@ -16,7 +16,7 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: "Montant invalide" });
         }
 
-        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+        const stripeInstance = stripe(process.env.STRIPE_SECRET_KEY);
 
         // Création du lien de paiement Stripe
         const paymentLink = await stripe.paymentLinks.create({
