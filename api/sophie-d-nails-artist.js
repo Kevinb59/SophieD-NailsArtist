@@ -31,6 +31,6 @@ export default async function handler(req, res) {
 
     } catch (error) {
         console.error("Erreur Stripe:", error);
-        return res.status(500).json({ error: "Erreur interne du serveur" });
+        return res.status(500).json({ error: error.message }); // Retourne l'erreur complète
     }
 }
