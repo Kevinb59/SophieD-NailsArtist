@@ -5,13 +5,18 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: "Méthode non autorisée" });
     }
 
+    res.setHeader("Access-Control-Allow-Origin", "*"); // Ajout de CORS pour éviter les blocages
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
     try {
         const { amount } = req.body;
+        
         if (!amount || amount <= 0) {
             return res.status(400).json({ error: "Montant invalide" });
         }
 
-        // Créer un lien de paiement Stripe
+        // Création du lien de paiement Stripe
         const paymentLink = await stripe.paymentLinks.create({
             line_items: [
                 {
@@ -31,6 +36,6 @@ export default async function handler(req, res) {
 
     } catch (error) {
         console.error("Erreur Stripe:", error);
-        return res.status(500).json({ error: error.message }); // Retourne l'erreur complète
+        return res.status(500).json({ error: error.message });
     }
 }
