@@ -9,9 +9,7 @@
 </head>
 <body class="is-preload">
 
-    <!-- Wrapper -->
     <div id="wrapper">
-        <!-- Main -->
         <div id="main">
             <section class="post">
                 <h2>GÉNÉRER UN LIEN DE PAIEMENT</h2>
@@ -31,7 +29,6 @@
             </section>
         </div>
 
-        <!-- Copyright -->
         <div id="copyright">
             <ul>
                 <li>&copy; SophieD - Nail Artist</li>
@@ -41,7 +38,6 @@
         </div>
     </div>
 
-    <!-- Scripts -->
     <script>
         async function generatePaymentLink() {
             const amount = document.getElementById("amount").value;
@@ -53,12 +49,11 @@
                 return;
             }
 
-            // Désactiver le bouton et afficher le chargement
             generateBtn.disabled = true;
             loadingText.style.display = "block";
 
             try {
-                const response = await fetch("/api/create-payment-link", {
+                const response = await fetch("/api/index", {  // Vérifie que le chemin correspond au bon fichier JS
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ amount: amount * 100 }) // Convertir en centimes
@@ -76,7 +71,6 @@
                 alert("Une erreur est survenue, veuillez réessayer.");
             }
 
-            // Réactiver le bouton et cacher le chargement
             generateBtn.disabled = false;
             loadingText.style.display = "none";
         }
