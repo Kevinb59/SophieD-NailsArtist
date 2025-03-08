@@ -1,41 +1,75 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paiement</title>
-</head>
-<body>
-    <h2>Générer un lien de paiement</h2>
-    <label for="amount">Montant (€) :</label>
-    <input type="number" id="amount" placeholder="Entrez le montant" min="1" required>
-    <button id="generate-btn">Générer</button>
-    
-    <p id="payment-link"></p>
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>SophieD - Nail Artist</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
 
-    <script>
-        document.getElementById("generate-btn").addEventListener("click", async function() {
-            const amount = document.getElementById("amount").value;
-            if (!amount || amount <= 0) {
-                alert("Veuillez entrer un montant valide.");
-                return;
-            }
+		<!-- Wrapper -->
+			<div id="wrapper">
 
-            const response = await fetch("/api/create-payment-link", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ amount }),
-            });
+				<!-- Main -->
+					<div id="main">
+						<section class="post">
+							<header class="major">
+                                <h2>Générer un lien de paiement</h2>
+                                <label for="amount">Montant (€) :</label>
+                                <input type="number" id="amount" placeholder="Entrez le montant" min="1" required>
+                                <button id="generate-btn">Générer</button>
+                                
+                                <p id="payment-link"></p>
+							</header>
+              
+						</section>
+					</div>
 
-            const data = await response.json();
-            if (data.url) {
-                document.getElementById("payment-link").innerHTML = `
-                    <a href="${data.url}" target="_blank">Lien de paiement</a>
-                `;
-            } else {
-                alert("Erreur : " + data.error);
-            }
-        });
-    </script>
-</body>
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>&copy; SophieD - Nail Artist</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li><li><a href="mentions.html">Mentions légales</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+            <script>
+                document.getElementById("generate-btn").addEventListener("click", async function() {
+                    const amount = document.getElementById("amount").value;
+                    if (!amount || amount <= 0) {
+                        alert("Veuillez entrer un montant valide.");
+                        return;
+                    }
+        
+                    const response = await fetch("/api/create-payment-link", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ amount }),
+                    });
+        
+                    const data = await response.json();
+                    if (data.url) {
+                        document.getElementById("payment-link").innerHTML = `
+                            <a href="${data.url}" target="_blank">Lien de paiement</a>
+                        `;
+                    } else {
+                        alert("Erreur : " + data.error);
+                    }
+                });
+            </script>
+	</body>
 </html>
