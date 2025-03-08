@@ -1,95 +1,41 @@
-<!DOCTYPE HTML>
-<html>
+<!DOCTYPE html>
+<html lang="fr">
 <head>
-    <title>SophieD - Nail Artist</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <link rel="stylesheet" href="assets/css/main.css" />
-    <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paiement</title>
 </head>
-<body class="is-preload">
-
-    <div id="wrapper">
-        <div id="main">
-            <section class="post">
-                <h2>GÉNÉRER UN LIEN DE PAIEMENT</h2>
-
-                <label for="amount">Montant (€) :</label>
-                <input type="number" id="amount" min="1" step="0.01" required>
-
-                <button id="generate-btn" onclick="generatePaymentLink()">Générer</button>
-
-                <p id="loading" style="display:none;">⏳ Génération en cours...</p>
-
-                <div id="payment-link" style="display:none;">
-                    <label>Lien de paiement :</label>
-                    <input type="text" id="payment-url" readonly>
-                    <button onclick="copyToClipboard()">Copier</button>
-                </div>
-            </section>
-        </div>
-
-        <div id="copyright">
-            <ul>
-                <li>&copy; SophieD - Nail Artist</li>
-                <li>Design: <a href="https://html5up.net">HTML5 UP</a></li>
-                <li><a href="mentions.html">Mentions légales</a></li>
-            </ul>
-        </div>
-    </div>
+<body>
+    <h2>Générer un lien de paiement</h2>
+    <label for="amount">Montant (€) :</label>
+    <input type="number" id="amount" placeholder="Entrez le montant" min="1" required>
+    <button id="generate-btn">Générer</button>
+    
+    <p id="payment-link"></p>
 
     <script>
-        async function generatePaymentLink() {
+        document.getElementById("generate-btn").addEventListener("click", async function() {
             const amount = document.getElementById("amount").value;
-            const loadingText = document.getElementById("loading");
-            const generateBtn = document.getElementById("generate-btn");
-
             if (!amount || amount <= 0) {
                 alert("Veuillez entrer un montant valide.");
                 return;
             }
 
-            generateBtn.disabled = true;
-            loadingText.style.display = "block";
+            const response = await fetch("/api/create-payment-link", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amount }),
+            });
 
-            try {
-                const response = await fetch("https://sophied-nailartist.vercel.app/api/create-payment-link", {  // Vérifie que le chemin correspond au bon fichier JS
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ amount: amount * 100 }) // Convertir en centimes
-                });
-
-                const data = await response.json();
-                
-                if (data.url) {
-                    document.getElementById("payment-url").value = data.url;
-                    document.getElementById("payment-link").style.display = "block";
-                } else {
-                    alert("Erreur : " + (data.error || "Impossible de créer le lien de paiement."));
-                }
-            } catch (error) {
-                alert("Une erreur est survenue, veuillez réessayer.");
+            const data = await response.json();
+            if (data.url) {
+                document.getElementById("payment-link").innerHTML = `
+                    <a href="${data.url}" target="_blank">Lien de paiement</a>
+                `;
+            } else {
+                alert("Erreur : " + data.error);
             }
-
-            generateBtn.disabled = false;
-            loadingText.style.display = "none";
-        }
-
-        function copyToClipboard() {
-            const input = document.getElementById("payment-url");
-            input.select();
-            document.execCommand("copy");
-            alert("Lien copié dans le presse-papiers !");
-        }
+        });
     </script>
-
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/js/jquery.scrollex.min.js"></script>
-    <script src="assets/js/jquery.scrolly.min.js"></script>
-    <script src="assets/js/browser.min.js"></script>
-    <script src="assets/js/breakpoints.min.js"></script>
-    <script src="assets/js/util.js"></script>
-    <script src="assets/js/main.js"></script>
-
 </body>
 </html>
