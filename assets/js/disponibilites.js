@@ -138,6 +138,19 @@ function formatTime(minutes) {
 
 
 
+document.addEventListener("DOMContentLoaded", function () {
+    const prestationSelect = document.getElementById("prestation");
+    const dateInput = document.getElementById("date");
+    const horaireSelect = document.getElementById("horaire");
+
+    prestationSelect.addEventListener("change", async function () {
+        await updateCalendar();
+        await updateDisponibilites();
+    });
+
+    dateInput.addEventListener("change", updateDisponibilites);
+});
+
 // 🗓️ Mettre à jour le calendrier en fonction des prestations disponibles
 async function updateCalendar() {
     const prestation = document.getElementById("prestation").value;
