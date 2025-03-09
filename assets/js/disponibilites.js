@@ -25,8 +25,17 @@ async function updateDisponibilites() {
         const csvText = await response.text();
         const disponibilites = parseCSV(csvText);
 
-        // Filtrer les disponibilités pour la date sélectionnée
-        const creneauxDispo = disponibilites.filter(row => row.date === date);
+        console.log("Données récupérées :", disponibilites); // Debugging
+
+        // Formatage correct de la date
+        const dateSelectionnee = formatDate(date);
+
+        console.log("Date sélectionnée :", dateSelectionnee); // Debugging
+
+        // Filtrer les créneaux pour la date sélectionnée
+        const creneauxDispo = disponibilites.filter(row => row.date === dateSelectionnee);
+
+        console.log("Créneaux trouvés :", creneauxDispo); // Debugging
 
         if (creneauxDispo.length > 0) {
             horaireSelect.innerHTML = creneauxDispo.map(creneau =>
@@ -43,13 +52,20 @@ async function updateDisponibilites() {
 
 function parseCSV(csvText) {
     const rows = csvText.split("\n").map(row => row.split(","));
-    const headers = rows.shift(); // Extraire l'en-tête
+    const headers = rows.shift().map(header => header.trim().toLowerCase().replace(" ", "_"));
 
     return rows.map(row => {
         let obj = {};
-        headers.forEach((header, index) => {
-            obj[header.trim().toLowerCase().replace(" ", "_")] = row[index].trim();
+        row.forEach((value, index) => {
+            obj[headers[index]] = value.trim();
         });
         return obj;
     });
+}
+
+function formatDate(inputDate) {
+    // Convertir une date YYYY-MM-DD en "lundi 10 mars 2025" (le format du fichier CSV)
+    const dateObj = new Date(inputDate);
+    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    return dateObj.toLocaleDateString('fr-FR', options);
 }
