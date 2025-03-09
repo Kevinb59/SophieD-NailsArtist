@@ -219,6 +219,14 @@ async function updateCalendar() {
         // Désactiver les jours où il n'y a PAS de créneaux valides
         let allDays = [];
         let dateInput = document.getElementById("date");
+        
+        // Vérifie si Flatpickr est bien attaché
+        if (!dateInput._flatpickr) {
+            console.error("❌ Flatpickr n'est pas initialisé sur dateInput !");
+            return;
+        }
+        
+        // Récupération correcte de la date actuelle
         let currentDate = new Date(dateInput._flatpickr.currentYear, dateInput._flatpickr.currentMonth, 1);
         
         while (currentDate.getMonth() === dateInput._flatpickr.currentMonth) {
