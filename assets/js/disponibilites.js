@@ -137,18 +137,17 @@ function formatTime(minutes) {
 
 
 
-document.addEventListener("DOMContentLoaded", async function () {
-    const dateInput = document.getElementById("date");
+document.addEventListener("DOMContentLoaded", function () {
     const prestationSelect = document.getElementById("prestation");
+    const dateInput = document.getElementById("date");
+    const horaireSelect = document.getElementById("horaire");
 
-    // Mise à jour du calendrier et des créneaux au chargement
-    await updateCalendar();
-
-    // Mise à jour dynamique lorsqu'une prestation est sélectionnée
     prestationSelect.addEventListener("change", async function () {
         await updateCalendar();
         await updateDisponibilites();
     });
+
+    dateInput.addEventListener("change", updateDisponibilites);
 });
 
 const csvLinks = {
@@ -157,7 +156,7 @@ const csvLinks = {
     prestations: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?gid=1742624469&single=true&output=csv"
 };
 
-// 🔹 Fonction pour récupérer les disponibilités et proposer des créneaux
+// 🔹 Fonction principale pour récupérer les créneaux horaires
 async function updateDisponibilites() {
     const prestation = document.getElementById("prestation").value;
     const date = document.getElementById("date").value;
@@ -186,15 +185,16 @@ async function updateDisponibilites() {
         console.log("RDVs chargés :", rdvs);
         console.log("Prestations chargées :", prestations);
 
-        // Trouver la durée de la prestation sélectionnée
+        // Trouver la durée de la prestation sélectionnée (en minutes)
         const prestationData = prestations.find(p => p.prestation.trim().toLowerCase() === prestation.trim().toLowerCase());
+
         if (!prestationData) {
             console.error("Prestation non trouvée :", prestation);
             horaireSelect.innerHTML = '<option value="">Erreur : Prestation inconnue</option>';
             return;
         }
 
-        const dureePrestation = parseInt(prestationData.duree); // Déjà en minutes
+        const dureePrestation = parseInt(prestationData.duree); // Durée en minutes
 
         // Trouver les disponibilités pour la date sélectionnée
         const dispoJour = disponibilites.find(d => d.date === date);
@@ -215,14 +215,15 @@ async function updateDisponibilites() {
 
         // Générer les créneaux de 30 minutes
         let creneauxDispo = [];
+
         for (let heure = heureDebut; heure + dureePrestation <= heureFin; heure += 30) {
             let finCreneau = heure + dureePrestation;
 
             // Vérifier si le créneau est libre
             let conflit = rdvIntervals.some(rdv => 
-                (heure < rdv.fin && finCreneau > rdv.debut) ||
-                (heure >= rdv.debut && heure < rdv.fin) ||
-                (finCreneau > rdv.debut && finCreneau <= rdv.fin)
+                (heure < rdv.fin && finCreneau > rdv.debut) || // Le créneau chevauche un RDV existant
+                (heure >= rdv.debut && heure < rdv.fin) || // Le créneau commence à l'intérieur d'un RDV
+                (finCreneau > rdv.debut && finCreneau <= rdv.fin) // Le créneau se termine à l'intérieur d'un RDV
             );
 
             if (!conflit) {
@@ -266,7 +267,12 @@ async function updateCalendar() {
         if (!prestationData) return;
 
         const dureePrestation = parseInt(prestationData.duree);
-        let joursDisponibles = disponibilites.map(d => d.date);
+
+        let joursDisponibles = disponibilites.filter(dispo => {
+            const jourDispoDebut = parseTime(dispo.heure_début);
+            const jourDispoFin = parseTime(dispo.heure_fin);
+            return (jourDispoFin - jourDispoDebut) >= dureePrestation;
+        }).map(d => d.date);
 
         flatpickr(document.getElementById("date"), {
             dateFormat: "Y-m-d",
