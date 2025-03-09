@@ -127,3 +127,98 @@ function formatTime(minutes) {
     let m = minutes % 60;
     return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
 }
+
+
+
+
+
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", async function () {
+    const dateInput = document.getElementById("date");
+    const prestationSelect = document.getElementById("prestation");
+
+    prestationSelect.addEventListener("change", updateCalendar);
+
+    async function updateCalendar() {
+        const prestation = prestationSelect.value;
+        if (!prestation) return;
+
+        const prestationsCSV = await fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?gid=1742624469&single=true&output=csv").then(res => res.text());
+        const disposCSV = await fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?output=csv").then(res => res.text());
+        const rdvCSV = await fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?gid=1845008987&single=true&output=csv").then(res => res.text());
+
+        const prestations = parseCSV(prestationsCSV);
+        const disponibilites = parseCSV(disposCSV);
+        const rdvs = parseCSV(rdvCSV);
+
+        // Trouver la durée de la prestation sélectionnée
+        const prestationData = prestations.find(p => p.prestation.trim().toLowerCase() === prestation.trim().toLowerCase());
+        if (!prestationData) return;
+        const dureePrestation = parseInt(prestationData.duree); // Durée en minutes
+
+        // Calcul des jours disponibles
+        let joursDisponibles = [];
+
+        disponibilites.forEach(dispo => {
+            const date = dispo.date;
+            const heureDebut = parseTime(dispo.heure_début);
+            const heureFin = parseTime(dispo.heure_fin);
+
+            // RDVs déjà pris pour ce jour
+            const rdvsJour = rdvs.filter(rdv => rdv.date === date);
+            let rdvIntervals = rdvsJour.map(rdv => ({
+                debut: parseTime(rdv.heure_début),
+                fin: parseTime(rdv.heure_fin)
+            }));
+
+            // Vérification de créneaux possibles
+            let possible = false;
+            for (let heure = heureDebut; heure + dureePrestation <= heureFin; heure += 30) {
+                let finCreneau = heure + dureePrestation;
+                let conflit = rdvIntervals.some(rdv => heure < rdv.fin && finCreneau > rdv.debut);
+                
+                if (!conflit) {
+                    possible = true;
+                    break;
+                }
+            }
+
+            if (possible) joursDisponibles.push(date);
+        });
+
+        console.log("Jours disponibles :", joursDisponibles);
+
+        // Flatpickr Configuration
+        flatpickr(dateInput, {
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            disable: [
+                function (date) {
+                    return !joursDisponibles.includes(date.toISOString().split("T")[0]);
+                }
+            ]
+        });
+    }
+
+    function parseCSV(csvText) {
+        const rows = csvText.split("\n").map(row => row.split(","));
+        const headers = rows.shift().map(header => header.trim().toLowerCase().replace(/\s+/g, "_"));
+
+        return rows.map(row => {
+            let obj = {};
+            row.forEach((value, index) => {
+                obj[headers[index]] = value ? value.trim() : "";
+            });
+            return obj;
+        });
+    }
+
+    function parseTime(hhmm) {
+        const [h, m] = hhmm.split(":").map(Number);
+        return h * 60 + m;
+    }
+});
