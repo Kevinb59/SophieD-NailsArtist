@@ -139,16 +139,19 @@ function formatTime(minutes) {
 
 
 document.addEventListener("DOMContentLoaded", function () {
+    const prestationSelect = document.getElementById("prestation");
     const dateInput = document.getElementById("date");
 
-    // Vérifie si Flatpickr est déjà attaché, sinon l'initialiser
+    // Initialisation de Flatpickr si ce n'est pas encore fait
     if (!dateInput._flatpickr) {
         flatpickr(dateInput, {
             dateFormat: "d/m/Y",
-            disable: [], // On désactivera les jours plus tard
+            disable: [], // Les jours désactivés seront ajoutés dynamiquement
             locale: "fr"
         });
     }
+
+    prestationSelect.addEventListener("change", updateCalendar);
 });
 
 // Fonction pour mettre à jour les jours disponibles selon la prestation sélectionnée
@@ -232,12 +235,14 @@ async function updateCalendar() {
         }
 
         let allDays = [];
-        let currentDate = new Date(dateInput._flatpickr.currentYear, dateInput._flatpickr.currentMonth, 1);
+        let currentDate = new Date();
+        let month = currentDate.getMonth();
+        let year = currentDate.getFullYear();
+        let daysInMonth = new Date(year, month + 1, 0).getDate();
 
-        while (currentDate.getMonth() === dateInput._flatpickr.currentMonth) {
-            let formattedDate = currentDate.toISOString().split("T")[0]; // Format YYYY-MM-DD
+        for (let day = 1; day <= daysInMonth; day++) {
+            let formattedDate = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
             allDays.push(formattedDate);
-            currentDate.setDate(currentDate.getDate() + 1);
         }
 
         let joursDesactives = allDays.filter(date => !joursDisponibles.includes(date));
@@ -247,36 +252,7 @@ async function updateCalendar() {
         // Appliquer les jours désactivés dans Flatpickr
         dateInput._flatpickr.set("disable", joursDesactives);
         dateInput._flatpickr.redraw();
-
     } catch (error) {
         console.error("❌ Erreur lors de la mise à jour du calendrier :", error);
     }
-}
-
-// Fonction pour parser un CSV en tableau d'objets
-function parseCSV(csvText) {
-    const rows = csvText.split("\n").map(row => row.split(","));
-    const headers = rows.shift().map(header => header.trim().toLowerCase().replace(/\s+/g, "_"));
-
-    return rows.map(row => {
-        let obj = {};
-        row.forEach((value, index) => {
-            obj[headers[index]] = value ? value.trim() : "";
-        });
-        return obj;
-    });
-}
-
-// Convertir HH:MM en minutes depuis minuit
-function parseTime(hhmm) {
-    if (!hhmm) return 0;
-    const [h, m] = hhmm.split(":").map(Number);
-    return h * 60 + m;
-}
-
-// Convertir minutes en HH:MM
-function formatTime(minutes) {
-    let h = Math.floor(minutes / 60);
-    let m = minutes % 60;
-    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
 }
