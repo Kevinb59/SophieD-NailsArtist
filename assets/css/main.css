@@ -4779,3 +4779,17 @@ input, select, textarea {
         display: block;
     }
 }
+
+@media screen and (min-width: 1024px) {
+  /* Pour les cases à cocher en deux colonnes */
+  .col-6 {
+    width: 50%;
+    float: left;
+  }
+
+  /* Pour les champs "nombre de doigts" en trois colonnes */
+  .col-4 {
+    width: 33.33%;
+    float: left;
+  }
+}
