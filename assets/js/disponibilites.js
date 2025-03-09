@@ -41,7 +41,7 @@ async function updateDisponibilites() {
         console.log("RDVs chargés :", rdvs);
         console.log("Prestations chargées :", prestations);
 
-        // Trouver la durée de la prestation sélectionnée
+        // Trouver la durée de la prestation sélectionnée (en minutes)
         const prestationData = prestations.find(p => p.prestation.trim().toLowerCase() === prestation.trim().toLowerCase());
 
         if (!prestationData) {
@@ -50,7 +50,7 @@ async function updateDisponibilites() {
             return;
         }
 
-        const dureePrestation = parseInt(prestationData.duree.split(":")[0]) * 60; // Convertir "02:00" en minutes
+        const dureePrestation = parseInt(prestationData.duree); // Déjà en minutes
 
         // Trouver les disponibilités pour la date sélectionnée
         const dispoJour = disponibilites.find(d => d.date === date);
@@ -66,7 +66,7 @@ async function updateDisponibilites() {
         const rdvsJour = rdvs.filter(r => r.date === date);
         const rdvIntervals = rdvsJour.map(r => ({
             debut: parseTime(r.heure_début),
-            fin: parseTime(r.heure_début) + parseInt(r.duree.split(":")[0]) * 60 // Convertir durée en minutes
+            fin: parseTime(r.heure_fin) // On prend l'heure de fin directement
         }));
 
         // Générer les créneaux de 30 minutes
@@ -75,7 +75,7 @@ async function updateDisponibilites() {
         for (let heure = heureDebut; heure + dureePrestation <= heureFin; heure += 30) {
             let finCreneau = heure + dureePrestation;
 
-            // **Correction stricte** : Bloquer les créneaux qui commencent avant la fin d'un RDV en cours
+            // Vérifier si le créneau est libre
             let conflit = rdvIntervals.some(rdv => 
                 (heure < rdv.fin && finCreneau > rdv.debut) || // Le créneau chevauche un RDV existant
                 (heure >= rdv.debut && heure < rdv.fin) || // Le créneau commence à l'intérieur d'un RDV
