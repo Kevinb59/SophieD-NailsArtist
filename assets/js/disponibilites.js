@@ -137,3 +137,125 @@ function formatTime(minutes) {
 
 
 
+
+document.addEventListener("DOMContentLoaded", function () {
+    const prestationSelect = document.getElementById("prestation");
+    const dateInput = document.getElementById("date");
+
+    prestationSelect.addEventListener("change", async function () {
+        await updateCalendar();
+        await updateDisponibilites();
+    });
+
+    dateInput.addEventListener("change", updateDisponibilites);
+});
+
+const csvLinks = {
+    disponibilites: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?output=csv",
+    rdv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?gid=1845008987&single=true&output=csv",
+    prestations: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?gid=1742624469&single=true&output=csv"
+};
+
+// 🔹 Fonction pour bloquer les jours sans créneaux disponibles
+async function updateCalendar() {
+    const prestation = document.getElementById("prestation").value;
+    if (!prestation) return;
+
+    console.log("🔍 Mise à jour du calendrier pour la prestation :", prestation);
+
+    try {
+        const [disposCSV, rdvCSV, prestationsCSV] = await Promise.all([
+            fetch(csvLinks.disponibilites).then(res => res.text()),
+            fetch(csvLinks.rdv).then(res => res.text()),
+            fetch(csvLinks.prestations).then(res => res.text())
+        ]);
+
+        const disponibilites = parseCSV(disposCSV);
+        const rdvs = parseCSV(rdvCSV);
+        const prestations = parseCSV(prestationsCSV);
+
+        // Vérifier si la prestation existe
+        const prestationData = prestations.find(p => p.prestation.trim().toLowerCase() === prestation.trim().toLowerCase());
+        if (!prestationData) {
+            console.error("❌ Prestation non trouvée :", prestation);
+            return;
+        }
+
+        const dureePrestation = parseInt(prestationData.duree);
+
+        let joursDisponibles = disponibilites.filter(dispo => {
+            const jourDispoDebut = parseTime(dispo.heure_début);
+            const jourDispoFin = parseTime(dispo.heure_fin);
+
+            // Vérifier que la durée de la prestation peut être placée dans ce jour
+            if ((jourDispoFin - jourDispoDebut) < dureePrestation) return false;
+
+            // Vérifier les RDV existants ce jour-là
+            const rdvsJour = rdvs.filter(r => r.date === dispo.date);
+            const rdvIntervals = rdvsJour.map(r => ({
+                debut: parseTime(r.heure_début),
+                fin: parseTime(r.heure_fin)
+            }));
+
+            let heureDebut = jourDispoDebut;
+            while (heureDebut + dureePrestation <= jourDispoFin) {
+                let finCreneau = heureDebut + dureePrestation;
+
+                let conflit = rdvIntervals.some(rdv => 
+                    (heureDebut < rdv.fin && finCreneau > rdv.debut) ||
+                    (heureDebut >= rdv.debut && heureDebut < rdv.fin) ||
+                    (finCreneau > rdv.debut && finCreneau <= rdv.fin)
+                );
+
+                if (!conflit) return true;
+                heureDebut += 30; // Vérification toutes les 30 minutes
+            }
+
+            return false;
+        }).map(d => d.date);
+
+        console.log("📅 Jours valides pour cette prestation :", joursDisponibles);
+
+        // Appliquer les jours disponibles dans Flatpickr
+        flatpickr(document.getElementById("date"), {
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            disable: [
+                function (date) {
+                    return !joursDisponibles.includes(date.toISOString().split("T")[0]);
+                }
+            ],
+            locale: {
+                firstDayOfWeek: 1
+            }
+        });
+
+    } catch (error) {
+        console.error("🚨 Erreur dans la mise à jour du calendrier :", error);
+    }
+}
+
+// 🔹 Fonctions utilitaires
+function parseCSV(csvText) {
+    const rows = csvText.split("\n").map(row => row.split(","));
+    const headers = rows.shift().map(header => header.trim().toLowerCase().replace(/\s+/g, "_"));
+
+    return rows.map(row => {
+        let obj = {};
+        row.forEach((value, index) => {
+            obj[headers[index]] = value ? value.trim() : "";
+        });
+        return obj;
+    });
+}
+
+function parseTime(hhmm) {
+    const [h, m] = hhmm.split(":").map(Number);
+    return h * 60 + m;
+}
+
+function formatTime(minutes) {
+    let h = Math.floor(minutes / 60);
+    let m = minutes % 60;
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+}
