@@ -175,12 +175,18 @@ document.addEventListener("DOMContentLoaded", async function () {
                 fin: parseTime(rdv.heure_fin)
             }));
 
-            // Vérification de créneaux possibles
+            // Vérification stricte des créneaux possibles
             let possible = false;
             for (let heure = heureDebut; heure + dureePrestation <= heureFin; heure += 30) {
                 let finCreneau = heure + dureePrestation;
-                let conflit = rdvIntervals.some(rdv => heure < rdv.fin && finCreneau > rdv.debut);
                 
+                // Vérifier s'il y a un chevauchement avec un RDV existant
+                let conflit = rdvIntervals.some(rdv => 
+                    (heure < rdv.fin && finCreneau > rdv.debut) ||
+                    (heure >= rdv.debut && heure < rdv.fin) ||
+                    (finCreneau > rdv.debut && finCreneau <= rdv.fin)
+                );
+
                 if (!conflit) {
                     possible = true;
                     break;
@@ -192,7 +198,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         console.log("Jours disponibles :", joursDisponibles);
 
-        // Flatpickr Configuration
+        // Désactiver uniquement les jours où la prestation ne rentre pas
         flatpickr(dateInput, {
             dateFormat: "Y-m-d",
             minDate: "today",
@@ -200,7 +206,10 @@ document.addEventListener("DOMContentLoaded", async function () {
                 function (date) {
                     return !joursDisponibles.includes(date.toISOString().split("T")[0]);
                 }
-            ]
+            ],
+            locale: {
+                firstDayOfWeek: 1 // Lundi en premier
+            }
         });
     }
 
