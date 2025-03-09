@@ -50,7 +50,7 @@ async function updateDisponibilites() {
             return;
         }
 
-        const dureePrestation = parseInt(prestationData.duree.split(":")[0]) * 60; // Convertir "02:00" en minutes (ex: 2h = 120 min)
+        const dureePrestation = parseInt(prestationData.duree.split(":")[0]) * 60; // Convertir "02:00" en minutes
 
         // Trouver les disponibilités pour la date sélectionnée
         const dispoJour = disponibilites.find(d => d.date === date);
@@ -75,11 +75,10 @@ async function updateDisponibilites() {
         for (let heure = heureDebut; heure + dureePrestation <= heureFin; heure += 30) {
             let finCreneau = heure + dureePrestation;
 
-            // **Correction**: Bloquer les créneaux qui chevauchent un RDV en cours
+            // **Correction stricte** : Bloquer les créneaux qui commencent avant la fin d'un RDV en cours
             let conflit = rdvIntervals.some(rdv => 
-                (heure >= rdv.debut && heure < rdv.fin) || // Début dans un RDV
-                (finCreneau > rdv.debut && finCreneau <= rdv.fin) || // Fin dans un RDV
-                (heure <= rdv.debut && finCreneau >= rdv.fin) // Couvre totalement un RDV
+                (heure < rdv.fin && finCreneau > rdv.debut) || // **Le créneau chevauche un RDV existant**
+                (heure < rdv.fin) // **Le créneau commence avant la fin d'un RDV**
             );
 
             if (!conflit) {
