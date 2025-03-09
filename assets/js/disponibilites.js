@@ -77,8 +77,9 @@ async function updateDisponibilites() {
 
             // **Correction stricte** : Bloquer les créneaux qui commencent avant la fin d'un RDV en cours
             let conflit = rdvIntervals.some(rdv => 
-                (heure < rdv.fin && finCreneau > rdv.debut) || // **Le créneau chevauche un RDV existant**
-                (heure < rdv.fin) // **Le créneau commence avant la fin d'un RDV**
+                (heure < rdv.fin && finCreneau > rdv.debut) || // Le créneau chevauche un RDV existant
+                (heure >= rdv.debut && heure < rdv.fin) || // Le créneau commence à l'intérieur d'un RDV
+                (finCreneau > rdv.debut && finCreneau <= rdv.fin) // Le créneau se termine à l'intérieur d'un RDV
             );
 
             if (!conflit) {
