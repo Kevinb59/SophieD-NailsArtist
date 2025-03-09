@@ -147,70 +147,92 @@ document.addEventListener("DOMContentLoaded", async function () {
         const prestation = prestationSelect.value;
         if (!prestation) return;
 
-        const prestationsCSV = await fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?gid=1742624469&single=true&output=csv").then(res => res.text());
-        const disposCSV = await fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?output=csv").then(res => res.text());
-        const rdvCSV = await fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?gid=1845008987&single=true&output=csv").then(res => res.text());
+        console.log("🔍 Mise à jour du calendrier pour la prestation :", prestation);
 
-        const prestations = parseCSV(prestationsCSV);
-        const disponibilites = parseCSV(disposCSV);
-        const rdvs = parseCSV(rdvCSV);
+        try {
+            const [prestationsCSV, disposCSV, rdvCSV] = await Promise.all([
+                fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?gid=1742624469&single=true&output=csv").then(res => res.text()),
+                fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?output=csv").then(res => res.text()),
+                fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?gid=1845008987&single=true&output=csv").then(res => res.text())
+            ]);
 
-        // Trouver la durée de la prestation sélectionnée
-        const prestationData = prestations.find(p => p.prestation.trim().toLowerCase() === prestation.trim().toLowerCase());
-        if (!prestationData) return;
-        const dureePrestation = parseInt(prestationData.duree); // Durée en minutes
+            const prestations = parseCSV(prestationsCSV);
+            const disponibilites = parseCSV(disposCSV);
+            const rdvs = parseCSV(rdvCSV);
 
-        // Calcul des jours disponibles
-        let joursDisponibles = [];
+            console.log("📜 Disponibilités chargées :", disponibilites);
+            console.log("📅 RDVs chargés :", rdvs);
+            console.log("💼 Prestations chargées :", prestations);
 
-        disponibilites.forEach(dispo => {
-            const date = dispo.date;
-            const heureDebut = parseTime(dispo.heure_début);
-            const heureFin = parseTime(dispo.heure_fin);
-
-            // RDVs déjà pris pour ce jour
-            const rdvsJour = rdvs.filter(rdv => rdv.date === date);
-            let rdvIntervals = rdvsJour.map(rdv => ({
-                debut: parseTime(rdv.heure_début),
-                fin: parseTime(rdv.heure_fin)
-            }));
-
-            // Vérification stricte des créneaux possibles
-            let possible = false;
-            for (let heure = heureDebut; heure + dureePrestation <= heureFin; heure += 30) {
-                let finCreneau = heure + dureePrestation;
-                
-                // Vérifier s'il y a un chevauchement avec un RDV existant
-                let conflit = rdvIntervals.some(rdv => 
-                    (heure < rdv.fin && finCreneau > rdv.debut) ||
-                    (heure >= rdv.debut && heure < rdv.fin) ||
-                    (finCreneau > rdv.debut && finCreneau <= rdv.fin)
-                );
-
-                if (!conflit) {
-                    possible = true;
-                    break;
-                }
+            // Trouver la durée de la prestation sélectionnée
+            const prestationData = prestations.find(p => p.prestation.trim().toLowerCase() === prestation.trim().toLowerCase());
+            if (!prestationData) {
+                console.warn("❌ Prestation non trouvée :", prestation);
+                return;
             }
 
-            if (possible) joursDisponibles.push(date);
-        });
+            const dureePrestation = parseInt(prestationData.duree); // Durée en minutes
+            console.log("⏳ Durée de la prestation :", dureePrestation, "minutes");
 
-        console.log("Jours disponibles :", joursDisponibles);
+            let joursDisponibles = [];
 
-        // Désactiver uniquement les jours où la prestation ne rentre pas
-        flatpickr(dateInput, {
-            dateFormat: "Y-m-d",
-            minDate: "today",
-            disable: [
-                function (date) {
-                    return !joursDisponibles.includes(date.toISOString().split("T")[0]);
+            disponibilites.forEach(dispo => {
+                const date = dispo.date;
+                const heureDebut = parseTime(dispo.heure_début);
+                const heureFin = parseTime(dispo.heure_fin);
+
+                // RDVs existants ce jour-là
+                const rdvsJour = rdvs.filter(rdv => rdv.date === date);
+                let rdvIntervals = rdvsJour.map(rdv => ({
+                    debut: parseTime(rdv.heure_début),
+                    fin: parseTime(rdv.heure_fin)
+                }));
+
+                console.log(`📆 Vérification du jour ${date} : ${heureDebut} - ${heureFin}`);
+
+                // Vérification stricte des créneaux disponibles
+                let possible = false;
+
+                for (let heure = heureDebut; heure + dureePrestation <= heureFin; heure += 30) {
+                    let finCreneau = heure + dureePrestation;
+                    let conflit = rdvIntervals.some(rdv => 
+                        (heure < rdv.fin && finCreneau > rdv.debut) || // Se chevauche avec un RDV
+                        (heure >= rdv.debut && heure < rdv.fin) || // Commence dans un RDV
+                        (finCreneau > rdv.debut && finCreneau <= rdv.fin) // Se termine dans un RDV
+                    );
+
+                    if (!conflit) {
+                        possible = true;
+                        console.log(`✅ Créneau possible trouvé à ${formatTime(heure)} - ${formatTime(finCreneau)}`);
+                        break; // Si au moins un créneau est valide, on garde ce jour.
+                    }
                 }
-            ],
-            locale: {
-                firstDayOfWeek: 1 // Lundi en premier
-            }
-        });
+
+                if (possible) {
+                    joursDisponibles.push(date);
+                } else {
+                    console.log(`❌ Aucun créneau disponible le ${date}`);
+                }
+            });
+
+            console.log("📅 Jours finalement disponibles :", joursDisponibles);
+
+            // Désactiver uniquement les jours sans créneaux
+            flatpickr(dateInput, {
+                dateFormat: "Y-m-d",
+                minDate: "today",
+                disable: [
+                    function (date) {
+                        return !joursDisponibles.includes(date.toISOString().split("T")[0]);
+                    }
+                ],
+                locale: {
+                    firstDayOfWeek: 1 // Lundi en premier
+                }
+            });
+        } catch (error) {
+            console.error("🚨 Erreur dans la récupération des créneaux :", error);
+        }
     }
 
     function parseCSV(csvText) {
@@ -229,5 +251,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     function parseTime(hhmm) {
         const [h, m] = hhmm.split(":").map(Number);
         return h * 60 + m;
+    }
+
+    function formatTime(minutes) {
+        let h = Math.floor(minutes / 60);
+        let m = minutes % 60;
+        return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
     }
 });
