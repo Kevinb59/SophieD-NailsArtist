@@ -27,13 +27,8 @@ async function updateDisponibilites() {
 
         console.log("Données récupérées :", disponibilites); // Debugging
 
-        // Formatage correct de la date
-        const dateSelectionnee = formatDate(date);
-
-        console.log("Date sélectionnée :", dateSelectionnee); // Debugging
-
-        // Filtrer les créneaux pour la date sélectionnée
-        const creneauxDispo = disponibilites.filter(row => row.date === dateSelectionnee);
+        // Filtrer les créneaux par date exacte
+        const creneauxDispo = disponibilites.filter(row => row.date === date);
 
         console.log("Créneaux trouvés :", creneauxDispo); // Debugging
 
@@ -61,11 +56,4 @@ function parseCSV(csvText) {
         });
         return obj;
     });
-}
-
-function formatDate(inputDate) {
-    // Convertir une date YYYY-MM-DD en "lundi 10 mars 2025" (le format du fichier CSV)
-    const dateObj = new Date(inputDate);
-    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-    return dateObj.toLocaleDateString('fr-FR', options);
 }
