@@ -178,8 +178,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             disponibilites.forEach(dispo => {
                 const date = dispo.date;
-                const heureDebut = parseTime(dispo.heure_début);
-                const heureFin = parseTime(dispo.heure_fin);
+                let heureDebut = parseTime(dispo.heure_début);
+                let heureFin = parseTime(dispo.heure_fin);
 
                 // RDVs existants ce jour-là
                 const rdvsJour = rdvs.filter(rdv => rdv.date === date);
@@ -188,30 +188,38 @@ document.addEventListener("DOMContentLoaded", async function () {
                     fin: parseTime(rdv.heure_fin)
                 }));
 
-                console.log(`📆 Vérification du jour ${date} : ${heureDebut} - ${heureFin}`);
+                console.log(`📆 Vérification du jour ${date} : ${formatTime(heureDebut)} - ${formatTime(heureFin)}`);
 
-                // Vérification stricte des créneaux disponibles
-                let possible = false;
+                let creneauxLibres = [];
+                let derniereFin = heureDebut;
 
-                for (let heure = heureDebut; heure + dureePrestation <= heureFin; heure += 30) {
-                    let finCreneau = heure + dureePrestation;
-                    let conflit = rdvIntervals.some(rdv => 
-                        (heure < rdv.fin && finCreneau > rdv.debut) || // Se chevauche avec un RDV
-                        (heure >= rdv.debut && heure < rdv.fin) || // Commence dans un RDV
-                        (finCreneau > rdv.debut && finCreneau <= rdv.fin) // Se termine dans un RDV
-                    );
+                // Trier les RDVs pour éviter les erreurs d'intervalles
+                rdvIntervals.sort((a, b) => a.debut - b.debut);
 
-                    if (!conflit) {
-                        possible = true;
-                        console.log(`✅ Créneau possible trouvé à ${formatTime(heure)} - ${formatTime(finCreneau)}`);
-                        break; // Si au moins un créneau est valide, on garde ce jour.
+                // Vérifier les créneaux entre les RDVs
+                rdvIntervals.forEach(rdv => {
+                    if (rdv.debut - derniereFin >= dureePrestation) {
+                        creneauxLibres.push({
+                            debut: derniereFin,
+                            fin: rdv.debut
+                        });
                     }
+                    derniereFin = Math.max(derniereFin, rdv.fin);
+                });
+
+                // Vérifier si un créneau est dispo après le dernier RDV
+                if (heureFin - derniereFin >= dureePrestation) {
+                    creneauxLibres.push({
+                        debut: derniereFin,
+                        fin: heureFin
+                    });
                 }
 
-                if (possible) {
+                if (creneauxLibres.length > 0) {
                     joursDisponibles.push(date);
+                    console.log(`✅ Jour dispo trouvé ${date}, créneaux libres :`, creneauxLibres.map(c => `${formatTime(c.debut)} - ${formatTime(c.fin)}`));
                 } else {
-                    console.log(`❌ Aucun créneau disponible le ${date}`);
+                    console.log(`❌ Aucun créneau de ${dureePrestation} min dispo le ${date}`);
                 }
             });
 
