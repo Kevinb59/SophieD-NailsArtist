@@ -139,27 +139,27 @@ function formatTime(minutes) {
 
 
 document.addEventListener("DOMContentLoaded", function () {
-    const prestationSelect = document.getElementById("prestation");
     const dateInput = document.getElementById("date");
-    const horaireSelect = document.getElementById("horaire");
 
-    prestationSelect.addEventListener("change", async function () {
-        await updateCalendar();
-        await updateDisponibilites();
-    });
-
-    dateInput.addEventListener("change", updateDisponibilites);
+    // Vérifie si Flatpickr est déjà attaché, sinon l'initialiser
+    if (!dateInput._flatpickr) {
+        flatpickr(dateInput, {
+            dateFormat: "d/m/Y",
+            disable: [], // On désactivera les jours plus tard
+            locale: "fr"
+        });
+    }
 });
 
-// 🗓️ Mettre à jour le calendrier en fonction des prestations disponibles
+// Fonction pour mettre à jour les jours disponibles selon la prestation sélectionnée
 async function updateCalendar() {
     const prestation = document.getElementById("prestation").value;
     if (!prestation) return;
 
-    console.log("🔄 Mise à jour du calendrier pour la prestation :", prestation);
+    console.log("📅 Mise à jour du calendrier pour la prestation :", prestation);
 
     try {
-        // Charger toutes les données en parallèle
+        // Charger toutes les données CSV
         const [disposCSV, rdvCSV, prestationsCSV] = await Promise.all([
             fetch(csvLinks.disponibilites).then(res => res.text()),
             fetch(csvLinks.rdv).then(res => res.text()),
@@ -180,67 +180,72 @@ async function updateCalendar() {
             console.error("❌ Prestation non trouvée :", prestation);
             return;
         }
-        const dureePrestation = parseInt(prestationData.duree); // En minutes
 
-        // Identifier les jours où un créneau est possible
-        let joursDisponibles = new Set();
+        const dureePrestation = parseInt(prestationData.duree); // Déjà en minutes
+
+        // Liste des jours disponibles en fonction des créneaux et des RDVs existants
+        let joursDisponibles = [];
 
         disponibilites.forEach(dispo => {
-            let date = dispo.date;
-            let heureDebut = parseTime(dispo.heure_début);
-            let heureFin = parseTime(dispo.heure_fin);
+            const heureDebut = parseTime(dispo.heure_début);
+            const heureFin = parseTime(dispo.heure_fin);
 
-            // Vérifier si un RDV bloque la durée demandée
-            const rdvsJour = rdvs.filter(r => r.date === date);
+            // Filtrer les RDVs de cette date
+            const rdvsJour = rdvs.filter(r => r.date === dispo.date);
             const rdvIntervals = rdvsJour.map(r => ({
                 debut: parseTime(r.heure_début),
                 fin: parseTime(r.heure_fin)
             }));
 
+            // Vérifier s'il reste un créneau disponible de la durée demandée
+            let slotDisponible = false;
             for (let heure = heureDebut; heure + dureePrestation <= heureFin; heure += 30) {
                 let finCreneau = heure + dureePrestation;
 
                 // Vérifier si le créneau est libre
-                let conflit = rdvIntervals.some(rdv =>
-                    (heure < rdv.fin && finCreneau > rdv.debut) || // Le créneau chevauche un RDV existant
-                    (heure >= rdv.debut && heure < rdv.fin) || // Le créneau commence à l'intérieur d'un RDV
-                    (finCreneau > rdv.debut && finCreneau <= rdv.fin) // Le créneau se termine à l'intérieur d'un RDV
+                let conflit = rdvIntervals.some(rdv => 
+                    (heure < rdv.fin && finCreneau > rdv.debut) || // Chevauche un RDV existant
+                    (heure >= rdv.debut && heure < rdv.fin) || // Commence à l'intérieur d'un RDV
+                    (finCreneau > rdv.debut && finCreneau <= rdv.fin) // Termine à l'intérieur d'un RDV
                 );
 
                 if (!conflit) {
-                    joursDisponibles.add(date);
-                    break; // Dès qu'on trouve un créneau possible, on valide la date
+                    slotDisponible = true;
+                    break; // On arrête dès qu'on trouve un créneau disponible
                 }
+            }
+
+            if (slotDisponible) {
+                joursDisponibles.push(dispo.date);
             }
         });
 
-        console.log("📅 Jours valides pour cette prestation :", [...joursDisponibles]);
+        console.log("✅ Jours valides pour cette prestation :", joursDisponibles);
 
-        // Désactiver les jours où il n'y a PAS de créneaux valides
-        let allDays = [];
-        let dateInput = document.getElementById("date");
-        
-        // Vérifie si Flatpickr est bien attaché
+        // Désactiver les jours où il n'y a PAS de créneaux valides dans Flatpickr
+        const dateInput = document.getElementById("date");
+
+        // Vérifie si Flatpickr est bien attaché avant de l'utiliser
         if (!dateInput._flatpickr) {
             console.error("❌ Flatpickr n'est pas initialisé sur dateInput !");
             return;
         }
-        
-        // Récupération correcte de la date actuelle
+
+        let allDays = [];
         let currentDate = new Date(dateInput._flatpickr.currentYear, dateInput._flatpickr.currentMonth, 1);
-        
+
         while (currentDate.getMonth() === dateInput._flatpickr.currentMonth) {
-            let formattedDate = currentDate.toISOString().split('T')[0]; // Format YYYY-MM-DD
+            let formattedDate = currentDate.toISOString().split("T")[0]; // Format YYYY-MM-DD
             allDays.push(formattedDate);
             currentDate.setDate(currentDate.getDate() + 1);
         }
 
-        let joursDesactives = allDays.filter(date => !joursDisponibles.has(date));
+        let joursDesactives = allDays.filter(date => !joursDisponibles.includes(date));
 
         console.log("🚫 Jours désactivés dans Flatpickr :", joursDesactives);
 
         // Appliquer les jours désactivés dans Flatpickr
-        dateInput._flatpickr.set('disable', joursDesactives);
+        dateInput._flatpickr.set("disable", joursDesactives);
         dateInput._flatpickr.redraw();
 
     } catch (error) {
@@ -264,6 +269,7 @@ function parseCSV(csvText) {
 
 // Convertir HH:MM en minutes depuis minuit
 function parseTime(hhmm) {
+    if (!hhmm) return 0;
     const [h, m] = hhmm.split(":").map(Number);
     return h * 60 + m;
 }
