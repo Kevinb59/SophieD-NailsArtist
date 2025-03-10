@@ -139,30 +139,42 @@ function formatTime(minutes) {
 
 
 document.addEventListener("DOMContentLoaded", function () {
-    const prestationSelect = document.getElementById("prestation");
     const dateInput = document.getElementById("date");
+    const prestationSelect = document.getElementById("prestation");
+    const horaireSelect = document.getElementById("horaire");
 
-    // Initialisation de Flatpickr si ce n'est pas encore fait
-    if (!dateInput._flatpickr) {
-        flatpickr(dateInput, {
-            dateFormat: "d/m/Y",
-            disable: [], // Les jours désactivés seront ajoutés dynamiquement
-            locale: "fr"
-        });
-    }
+    // Initialisation de Flatpickr avec la désactivation dynamique des jours
+    flatpickr(dateInput, {
+        dateFormat: "d/m/Y",
+        disable: [], // Désactivation des jours sera mise à jour dynamiquement
+        locale: "fr",
+        onOpen: updateCalendar // Met à jour les jours désactivés lorsqu'on ouvre le calendrier
+    });
 
-    prestationSelect.addEventListener("change", updateCalendar);
+    prestationSelect.addEventListener("change", async function () {
+        await updateCalendar();
+        await updateDisponibilites();
+    });
+
+    dateInput.addEventListener("change", updateDisponibilites);
 });
 
-// Fonction pour mettre à jour les jours disponibles selon la prestation sélectionnée
+// 📌 Liens CSV pour récupérer les disponibilités, RDVs et prestations
+const csvLinks = {
+    disponibilites: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?output=csv",
+    rdv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?gid=1845008987&single=true&output=csv",
+    prestations: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?gid=1742624469&single=true&output=csv"
+};
+
+// 📆 Met à jour le calendrier en désactivant les jours sans créneaux
 async function updateCalendar() {
     const prestation = document.getElementById("prestation").value;
     if (!prestation) return;
 
-    console.log("📅 Mise à jour du calendrier pour la prestation :", prestation);
+    console.log("🔄 Mise à jour du calendrier pour la prestation :", prestation);
 
     try {
-        // Charger toutes les données CSV
+        // Récupération des données CSV
         const [disposCSV, rdvCSV, prestationsCSV] = await Promise.all([
             fetch(csvLinks.disponibilites).then(res => res.text()),
             fetch(csvLinks.rdv).then(res => res.text()),
@@ -173,86 +185,124 @@ async function updateCalendar() {
         const rdvs = parseCSV(rdvCSV);
         const prestations = parseCSV(prestationsCSV);
 
-        console.log("📜 Disponibilités chargées :", disponibilites);
-        console.log("📅 RDVs chargés :", rdvs);
-        console.log("💼 Prestations chargées :", prestations);
+        console.log("📋 Disponibilités chargées :", disponibilites);
+        console.log("📋 RDVs chargés :", rdvs);
+        console.log("📋 Prestations chargées :", prestations);
 
         // Trouver la durée de la prestation sélectionnée (en minutes)
         const prestationData = prestations.find(p => p.prestation.trim().toLowerCase() === prestation.trim().toLowerCase());
+
         if (!prestationData) {
             console.error("❌ Prestation non trouvée :", prestation);
             return;
         }
 
-        const dureePrestation = parseInt(prestationData.duree); // Déjà en minutes
+        const dureePrestation = parseInt(prestationData.duree); // Durée en minutes
 
-        // Liste des jours disponibles en fonction des créneaux et des RDVs existants
-        let joursDisponibles = [];
-
-        disponibilites.forEach(dispo => {
-            const heureDebut = parseTime(dispo.heure_début);
-            const heureFin = parseTime(dispo.heure_fin);
-
-            // Filtrer les RDVs de cette date
-            const rdvsJour = rdvs.filter(r => r.date === dispo.date);
-            const rdvIntervals = rdvsJour.map(r => ({
-                debut: parseTime(r.heure_début),
-                fin: parseTime(r.heure_fin)
-            }));
-
-            // Vérifier s'il reste un créneau disponible de la durée demandée
-            let slotDisponible = false;
-            for (let heure = heureDebut; heure + dureePrestation <= heureFin; heure += 30) {
-                let finCreneau = heure + dureePrestation;
-
-                // Vérifier si le créneau est libre
-                let conflit = rdvIntervals.some(rdv => 
-                    (heure < rdv.fin && finCreneau > rdv.debut) || // Chevauche un RDV existant
-                    (heure >= rdv.debut && heure < rdv.fin) || // Commence à l'intérieur d'un RDV
-                    (finCreneau > rdv.debut && finCreneau <= rdv.fin) // Termine à l'intérieur d'un RDV
-                );
-
-                if (!conflit) {
-                    slotDisponible = true;
-                    break; // On arrête dès qu'on trouve un créneau disponible
-                }
-            }
-
-            if (slotDisponible) {
-                joursDisponibles.push(dispo.date);
-            }
-        });
+        // Filtrer les jours valides
+        const joursDisponibles = disponibilites
+            .filter(d => {
+                const heureDebut = parseTime(d.heure_début);
+                const heureFin = parseTime(d.heure_fin);
+                return heureFin - heureDebut >= dureePrestation;
+            })
+            .map(d => d.date);
 
         console.log("✅ Jours valides pour cette prestation :", joursDisponibles);
 
-        // Désactiver les jours où il n'y a PAS de créneaux valides dans Flatpickr
-        const dateInput = document.getElementById("date");
+        // Désactiver tous les jours qui ne sont pas dans joursDisponibles
+        const allDays = [];
+        let currentDate = new Date();
+        let nextMonth = new Date(currentDate);
+        nextMonth.setMonth(nextMonth.getMonth() + 1);
 
-        // Vérifie si Flatpickr est bien attaché avant de l'utiliser
-        if (!dateInput._flatpickr) {
-            console.error("❌ Flatpickr n'est pas initialisé sur dateInput !");
+        while (currentDate <= nextMonth) {
+            let formattedDate = currentDate.toISOString().split('T')[0]; // Format YYYY-MM-DD
+            allDays.push(formattedDate);
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        // Retirer les jours valides de la liste des jours désactivés
+        const joursDesactives = allDays.filter(date => !joursDisponibles.includes(date));
+
+        console.log("🛑 Jours désactivés dans Flatpickr :", joursDesactives);
+
+        // Appliquer les jours désactivés
+        const dateInput = document.getElementById("date");
+        dateInput._flatpickr.set("disable", joursDesactives);
+        dateInput._flatpickr.redraw();
+
+    } catch (error) {
+        console.error("❌ Erreur lors de la mise à jour du calendrier :", error);
+    }
+}
+
+// ⏳ Met à jour les créneaux horaires disponibles pour le jour sélectionné
+async function updateDisponibilites() {
+    const prestation = document.getElementById("prestation").value;
+    const date = document.getElementById("date").value;
+    const horaireSelect = document.getElementById("horaire");
+
+    horaireSelect.innerHTML = '<option value="">Chargement...</option>';
+
+    if (!prestation || !date) {
+        horaireSelect.innerHTML = '<option value="">- Sélectionner un créneau -</option>';
+        return;
+    }
+
+    try {
+        const [disposCSV, rdvCSV, prestationsCSV] = await Promise.all([
+            fetch(csvLinks.disponibilites).then(res => res.text()),
+            fetch(csvLinks.rdv).then(res => res.text()),
+            fetch(csvLinks.prestations).then(res => res.text())
+        ]);
+
+        const disponibilites = parseCSV(disposCSV);
+        const rdvs = parseCSV(rdvCSV);
+        const prestations = parseCSV(prestationsCSV);
+
+        const prestationData = prestations.find(p => p.prestation.trim().toLowerCase() === prestation.trim().toLowerCase());
+
+        if (!prestationData) {
+            console.error("❌ Prestation non trouvée :", prestation);
             return;
         }
 
-        let allDays = [];
-        let currentDate = new Date();
-        let month = currentDate.getMonth();
-        let year = currentDate.getFullYear();
-        let daysInMonth = new Date(year, month + 1, 0).getDate();
+        const dureePrestation = parseInt(prestationData.duree);
 
-        for (let day = 1; day <= daysInMonth; day++) {
-            let formattedDate = `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-            allDays.push(formattedDate);
+        const dispoJour = disponibilites.find(d => d.date === date);
+        if (!dispoJour) {
+            horaireSelect.innerHTML = '<option value="">Aucune disponibilité ce jour</option>';
+            return;
         }
 
-        let joursDesactives = allDays.filter(date => !joursDisponibles.includes(date));
+        const heureDebut = parseTime(dispoJour.heure_début);
+        const heureFin = parseTime(dispoJour.heure_fin);
 
-        console.log("🚫 Jours désactivés dans Flatpickr :", joursDesactives);
+        const rdvsJour = rdvs.filter(r => r.date === date);
+        const rdvIntervals = rdvsJour.map(r => ({
+            debut: parseTime(r.heure_début),
+            fin: parseTime(r.heure_fin)
+        }));
 
-        // Appliquer les jours désactivés dans Flatpickr
-        dateInput._flatpickr.set("disable", joursDesactives);
-        dateInput._flatpickr.redraw();
+        let creneauxDispo = [];
+        for (let heure = heureDebut; heure + dureePrestation <= heureFin; heure += 30) {
+            let finCreneau = heure + dureePrestation;
+
+            let conflit = rdvIntervals.some(rdv => heure < rdv.fin && finCreneau > rdv.debut);
+            if (!conflit) {
+                creneauxDispo.push(`${formatTime(heure)} - ${formatTime(finCreneau)}`);
+            }
+        }
+
+        if (creneauxDispo.length > 0) {
+            horaireSelect.innerHTML = creneauxDispo.map(creneau =>
+                `<option value="${creneau}">${creneau}</option>`
+            ).join('');
+        } else {
+            horaireSelect.innerHTML = '<option value="">Aucun créneau disponible</option>';
+        }
     } catch (error) {
-        console.error("❌ Erreur lors de la mise à jour du calendrier :", error);
+        console.error("❌ Erreur lors de la récupération des créneaux :", error);
     }
 }
