@@ -146,9 +146,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // Vérifie si l'élément existe avant d'initialiser Flatpickr
     if (dateInput) {
         let flatpickrInstance = flatpickr(dateInput, {
-            dateFormat: "Y-m-d", // Format ISO pour éviter les décalages
+            dateFormat: "Y-m-d",
             disable: [], // Désactiver les jours sera mis à jour dynamiquement
             locale: "fr",
+            minDate: "today", // Désactiver tous les jours passés
             onOpen: updateCalendar // Met à jour les jours disponibles quand l'utilisateur ouvre le calendrier
         });
 
@@ -203,6 +204,9 @@ async function updateCalendar() {
         }
         const dureePrestation = parseInt(prestationData.duree);
 
+        // Déterminer la dernière date disponible dans le fichier CSV
+        let derniereDateDispo = disponibilites.reduce((max, dispo) => dispo.date > max ? dispo.date : max, "2000-01-01");
+
         // Déterminer les jours valides
         let joursDisponibles = [];
         for (let dispo of disponibilites) {
@@ -235,12 +239,13 @@ async function updateCalendar() {
 
         console.log("✅ Jours valides pour cette prestation :", joursDisponibles);
 
-        // Désactiver tous les jours qui ne sont pas valides
+        // Désactiver tous les jours sauf ceux disponibles
         let allDays = [];
         let currentDate = new Date();
+        let maxDate = new Date(derniereDateDispo); // La dernière date dispo issue du fichier CSV
         currentDate.setHours(0, 0, 0, 0);
 
-        for (let i = 0; i < 60; i++) { // Parcours sur 60 jours
+        while (currentDate <= maxDate) {
             let formattedDate = currentDate.toISOString().split('T')[0]; // Format YYYY-MM-DD
             if (!joursDisponibles.includes(formattedDate)) {
                 allDays.push(formattedDate);
