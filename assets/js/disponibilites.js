@@ -143,17 +143,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const prestationSelect = document.getElementById("prestation");
     const horaireSelect = document.getElementById("horaire");
 
-    // Vérifie si l'élément existe avant d'initialiser Flatpickr
     if (dateInput) {
         let flatpickrInstance = flatpickr(dateInput, {
             dateFormat: "Y-m-d",
-            disable: [], // Désactivation des jours mise à jour dynamiquement
+            disable: [],
             locale: "fr",
-            minDate: "today", // Désactiver tous les jours passés
-            onOpen: updateCalendar // Met à jour les jours disponibles lors de l'ouverture
+            minDate: "today", // Désactiver tous les jours avant aujourd'hui
+            onOpen: updateCalendar
         });
 
-        // Stocke l'instance de Flatpickr pour la mise à jour dynamique
         dateInput.flatpickrInstance = flatpickrInstance;
     } else {
         console.error("❌ L'élément #date n'a pas été trouvé dans le DOM.");
@@ -181,7 +179,6 @@ async function updateCalendar() {
     console.log("📅 Mise à jour du calendrier pour la prestation :", prestation);
 
     try {
-        // Charger toutes les données en parallèle
         const [disposCSV, rdvCSV, prestationsCSV] = await Promise.all([
             fetch(csvLinks.disponibilites).then(res => res.text()),
             fetch(csvLinks.rdv).then(res => res.text()),
@@ -204,11 +201,9 @@ async function updateCalendar() {
         }
         const dureePrestation = parseInt(prestationData.duree);
 
-        // Déterminer la dernière date disponible dans le fichier CSV
-        let derniereDateDispo = disponibilites.reduce((max, dispo) => dispo.date > max ? dispo.date : max, "2000-01-01");
-
-        // Déterminer les jours valides
         let joursDisponibles = [];
+        let derniereDateDispo = "2000-01-01"; // Initialisation pour la dernière date du CSV
+
         for (let dispo of disponibilites) {
             let heureDebut = parseTime(dispo.heure_début);
             let heureFin = parseTime(dispo.heure_fin);
@@ -234,7 +229,12 @@ async function updateCalendar() {
                 }
             }
 
-            if (libre) joursDisponibles.push(dispo.date);
+            if (libre) {
+                joursDisponibles.push(dispo.date);
+                if (dispo.date > derniereDateDispo) {
+                    derniereDateDispo = dispo.date;
+                }
+            }
         }
 
         console.log("✅ Jours valides pour cette prestation :", joursDisponibles);
@@ -242,32 +242,20 @@ async function updateCalendar() {
         // Désactiver tous les jours sauf ceux disponibles
         let allDays = [];
         let currentDate = new Date();
-        let maxDate = new Date(derniereDateDispo); // La dernière date dispo issue du fichier CSV
+        let maxDate = new Date(derniereDateDispo);
         currentDate.setHours(0, 0, 0, 0);
         maxDate.setHours(23, 59, 59, 999);
 
         while (currentDate <= maxDate) {
-            let formattedDate = currentDate.toISOString().split('T')[0]; // Format YYYY-MM-DD
+            let formattedDate = currentDate.toISOString().split('T')[0];
             if (!joursDisponibles.includes(formattedDate)) {
                 allDays.push(formattedDate);
             }
             currentDate.setDate(currentDate.getDate() + 1);
         }
 
-        // Désactiver tous les jours après la dernière date disponible
-        let afterLastDate = [];
-        let futureDate = new Date(maxDate);
-        futureDate.setDate(futureDate.getDate() + 1);
-        while (futureDate <= new Date(2099, 11, 31)) { // Bloquer jusqu'à une date lointaine
-            afterLastDate.push(futureDate.toISOString().split('T')[0]);
-            futureDate.setDate(futureDate.getDate() + 1);
-        }
-
-        allDays = allDays.concat(afterLastDate);
-
         console.log("🚫 Jours désactivés dans Flatpickr :", allDays);
 
-        // Appliquer les jours désactivés à Flatpickr
         dateInput.flatpickrInstance.set("disable", allDays);
         dateInput.flatpickrInstance.redraw();
 
