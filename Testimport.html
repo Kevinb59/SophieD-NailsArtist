@@ -47,31 +47,24 @@
                 message: document.getElementById("message").value
             };
 
-            // URL du script Google Apps
+            // 🔹 Utilisation du proxy pour contourner la restriction CORS
             const scriptURL = "https://script.google.com/macros/s/AKfycbyPI8QhZZd1aftZVvcQWpDejzHspBfbc_bqsuUfgLG2coOv8UdEyC_IhJbutMLvQDNd/exec";
+            const proxyURL = "https://cors-anywhere.herokuapp.com/" + scriptURL;
 
-            // Envoi des données au script Google Apps
-            fetch(scriptURL, {
+            fetch(proxyURL, {
                 method: "POST",
-                headers: { 
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(formData),
-                mode: "cors" // Permet d'éviter les erreurs CORS
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData)
             })
             .then(response => response.json())
             .then(data => {
                 if (data.status === "success") {
                     alert("Données envoyées avec succès !");
-                    document.getElementById("form").reset(); // Réinitialiser le formulaire après envoi
                 } else {
                     alert("Erreur : " + data.message);
                 }
             })
-            .catch(error => {
-                console.error("Erreur :", error);
-                alert("Une erreur est survenue. Veuillez réessayer.");
-            });
+            .catch(error => console.error("Erreur :", error));
         });
     </script>
 </body>
