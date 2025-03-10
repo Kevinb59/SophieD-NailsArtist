@@ -256,10 +256,10 @@
 								        </div>
 								
 								        <!-- Recevoir une copie -->
-								        <div class="col-6 col-12-small">
-								            <input type="checkbox" id="nouveau-client" name="nouveau-client">
-								            <label for="nouveau-client">Nouveau client(e)</label>
-								        </div>
+									<div id="client-container">
+									    <input type="checkbox" id="nouveau-client" name="nouveau-client">
+									    <label for="nouveau-client">Nouveau client(e)</label>
+									</div>
 								        <div class="col-6 col-12-small">
 								            <input type="checkbox" id="newsletter" name="newsletter" checked>
 								            <label for="newsletter">Recevoir la Newsletter</label>
@@ -309,16 +309,16 @@
 									    var prestation = document.getElementById("prestation").value;
 									    var supplements = document.getElementById("supplements");
 									    var longueurOngles = document.getElementById("longueur-ongles");
-									    var nouveauClient = document.getElementById("nouveau-client").parentNode; // Récupérer le conteneur
+									    var clientContainer = document.getElementById("client-container");
 									
 									    if (prestation === "Nail Art Libre") {
-									        supplements.style.display = "none";  // Masque les suppléments
-									        longueurOngles.style.display = "block"; // Affiche Court / Long
-									        nouveauClient.style.marginTop = "10px"; // Ajuster l'espace
+									        supplements.style.display = "none";  
+									        longueurOngles.style.display = "block";
+									        clientContainer.style.marginTop = "10px"; // Ajout d'un espacement constant
 									    } else {
-									        supplements.style.display = "block";  // Affiche les suppléments
-									        longueurOngles.style.display = "none"; // Masque Court / Long
-									        nouveauClient.style.marginTop = "0"; // Réinitialiser l'espace
+									        supplements.style.display = "block";  
+									        longueurOngles.style.display = "none";
+									        clientContainer.style.marginTop = "0"; 
 									    }
 									}
 								</script>
