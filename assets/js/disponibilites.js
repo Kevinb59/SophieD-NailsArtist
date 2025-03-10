@@ -143,13 +143,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const prestationSelect = document.getElementById("prestation");
     const horaireSelect = document.getElementById("horaire");
 
-    // Initialisation de Flatpickr avec désactivation des jours dynamiquement
-    flatpickr(dateInput, {
-        dateFormat: "d/m/Y",
-        disable: [], // Les jours désactivés seront mis à jour dynamiquement
-        locale: "fr",
-        onOpen: updateCalendar // Met à jour les jours disponibles quand l'utilisateur ouvre le calendrier
-    });
+    // Vérifie si l'élément dateInput existe avant d'initialiser Flatpickr
+    if (dateInput) {
+        flatpickr(dateInput, {
+            dateFormat: "d/m/Y",
+            disable: [], // Les jours désactivés seront mis à jour dynamiquement
+            locale: "fr",
+            onOpen: updateCalendar // Met à jour les jours disponibles quand l'utilisateur ouvre le calendrier
+        });
+    } else {
+        console.error("❌ L'élément #date n'a pas été trouvé dans le DOM.");
+    }
 
     prestationSelect.addEventListener("change", async function () {
         await updateCalendar();
@@ -161,6 +165,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // ** Met à jour les jours activés/désactivés dans Flatpickr **
 async function updateCalendar() {
+    const dateInput = document.getElementById("date");
+    if (!dateInput) {
+        console.error("❌ Erreur: dateInput introuvable");
+        return;
+    }
+
     const prestation = document.getElementById("prestation").value;
     if (!prestation) return;
 
@@ -241,8 +251,12 @@ async function updateCalendar() {
         console.log("🚫 Jours désactivés dans Flatpickr :", allDays);
 
         // Appliquer les jours désactivés à Flatpickr
-        dateInput._flatpickr.set("disable", allDays);
-        dateInput._flatpickr.redraw();
+        if (dateInput._flatpickr) {
+            dateInput._flatpickr.set("disable", allDays);
+            dateInput._flatpickr.redraw();
+        } else {
+            console.error("⚠ Flatpickr n'est pas encore initialisé !");
+        }
 
     } catch (error) {
         console.error("❌ Erreur lors de la mise à jour du calendrier :", error);
