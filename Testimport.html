@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Formulaire Google Sheets</title>
+</head>
+<body>
+    <h2>Formulaire de Test</h2>
+    <form id="testForm">
+        <label>Nom :</label>
+        <input type="text" name="nom" required><br><br>
+        
+        <label>Email :</label>
+        <input type="email" name="email" required><br><br>
+        
+        <label>Téléphone :</label>
+        <input type="tel" name="telephone"><br><br>
+
+        <label>Prestation :</label>
+        <input type="text" name="prestation"><br><br>
+
+        <label>Date :</label>
+        <input type="date" name="date"><br><br>
+
+        <label>Heure :</label>
+        <input type="time" name="heure"><br><br>
+
+        <label>Message :</label>
+        <textarea name="message"></textarea><br><br>
+
+        <button type="submit">Envoyer</button>
+    </form>
+
+    <script>
+        document.getElementById("testForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            let formData = new FormData(this);
+            let data = Object.fromEntries(formData.entries());
+
+            let response = await fetch("TON_URL_SCRIPT_GAS", {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: { "Content-Type": "application/json" }
+            });
+
+            let result = await response.text();
+            if (result === "Success") {
+                alert("Formulaire envoyé avec succès !");
+            } else {
+                alert("Erreur lors de l'envoi !");
+            }
+        });
+    </script>
+</body>
+</html>
