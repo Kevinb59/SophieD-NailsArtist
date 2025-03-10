@@ -147,7 +147,7 @@ document.addEventListener("DOMContentLoaded", function () {
             dateFormat: "Y-m-d",
             disable: [], // Désactivation dynamique des jours
             locale: "fr",
-            minDate: "today", // Empêche de sélectionner une date passée
+            minDate: "today", // Désactive les jours passés
             disableMobile: true, // Force l'utilisation de Flatpickr sur mobile
             clickOpens: false, // Empêche l'ouverture automatique sur focus
             onOpen: updateCalendar, // Met à jour les jours disponibles lors de l'ouverture
@@ -211,7 +211,7 @@ async function updateCalendar() {
 
         // Déterminer les jours réellement disponibles pour la prestation
         let joursDisponibles = [];
-        let derniereDateReelle = null; // La dernière date où un créneau est dispo
+        let derniereDateReelle = null; // La vraie dernière date où il y a un créneau dispo
 
         for (let dispo of disponibilites) {
             let heureDebut = parseTime(dispo.heure_début);
@@ -240,7 +240,7 @@ async function updateCalendar() {
 
             if (libre) {
                 joursDisponibles.push(dispo.date);
-                derniereDateReelle = dispo.date; // Met à jour la dernière date où il y a un créneau dispo
+                derniereDateReelle = dispo.date; // Met à jour la dernière date où il y a un créneau disponible
             }
         }
 
@@ -250,7 +250,7 @@ async function updateCalendar() {
         // Désactiver tous les jours sauf ceux disponibles
         let allDays = [];
         let currentDate = new Date();
-        let maxDate = derniereDateReelle ? new Date(derniereDateReelle) : new Date();
+        let maxDate = derniereDateReelle ? new Date(derniereDateReelle) : new Date(); // Utiliser la dernière date réelle
         currentDate.setHours(0, 0, 0, 0);
         maxDate.setHours(23, 59, 59, 999);
 
@@ -261,6 +261,17 @@ async function updateCalendar() {
             }
             currentDate.setDate(currentDate.getDate() + 1);
         }
+
+        // Bloquer tous les jours après la dernière date réelle
+        let afterLastDate = [];
+        let futureDate = new Date(maxDate);
+        futureDate.setDate(futureDate.getDate() + 1);
+        while (futureDate <= new Date(2099, 11, 31)) { // Bloquer jusqu'à une date lointaine
+            afterLastDate.push(futureDate.toISOString().split('T')[0]);
+            futureDate.setDate(futureDate.getDate() + 1);
+        }
+
+        allDays = allDays.concat(afterLastDate);
 
         console.log("🚫 Jours désactivés dans Flatpickr :", allDays);
 
