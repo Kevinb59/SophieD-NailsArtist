@@ -143,14 +143,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const prestationSelect = document.getElementById("prestation");
     const horaireSelect = document.getElementById("horaire");
 
-    // Vérifie si l'élément dateInput existe avant d'initialiser Flatpickr
+    // Vérifie si l'élément existe avant d'initialiser Flatpickr
     if (dateInput) {
-        flatpickr(dateInput, {
-            dateFormat: "d/m/Y",
-            disable: [], // Les jours désactivés seront mis à jour dynamiquement
+        let flatpickrInstance = flatpickr(dateInput, {
+            dateFormat: "Y-m-d", // Format ISO pour éviter les décalages
+            disable: [], // Désactiver les jours sera mis à jour dynamiquement
             locale: "fr",
             onOpen: updateCalendar // Met à jour les jours disponibles quand l'utilisateur ouvre le calendrier
         });
+
+        // Stocke l'instance de Flatpickr pour la mise à jour dynamique
+        dateInput.flatpickrInstance = flatpickrInstance;
     } else {
         console.error("❌ L'élément #date n'a pas été trouvé dans le DOM.");
     }
@@ -166,8 +169,8 @@ document.addEventListener("DOMContentLoaded", function () {
 // ** Met à jour les jours activés/désactivés dans Flatpickr **
 async function updateCalendar() {
     const dateInput = document.getElementById("date");
-    if (!dateInput) {
-        console.error("❌ Erreur: dateInput introuvable");
+    if (!dateInput || !dateInput.flatpickrInstance) {
+        console.error("❌ Erreur: Flatpickr n'est pas initialisé sur #date");
         return;
     }
 
@@ -198,26 +201,23 @@ async function updateCalendar() {
             console.error("❌ Prestation non trouvée :", prestation);
             return;
         }
-        const dureePrestation = parseInt(prestationData.duree); // Déjà en minutes
+        const dureePrestation = parseInt(prestationData.duree);
 
-        // Déterminer les jours valides en fonction des disponibilités et RDVs existants
+        // Déterminer les jours valides
         let joursDisponibles = [];
         for (let dispo of disponibilites) {
             let heureDebut = parseTime(dispo.heure_début);
             let heureFin = parseTime(dispo.heure_fin);
 
-            // Filtrer les RDVs de cette journée
             let rdvsJour = rdvs.filter(r => r.date === dispo.date);
             let rdvIntervals = rdvsJour.map(r => ({
                 debut: parseTime(r.heure_début),
                 fin: parseTime(r.heure_fin)
             }));
 
-            // Vérifier s'il reste assez de temps libre pour placer la prestation
             let libre = false;
             for (let heure = heureDebut; heure + dureePrestation <= heureFin; heure += 30) {
                 let finCreneau = heure + dureePrestation;
-
                 let conflit = rdvIntervals.some(rdv =>
                     (heure < rdv.fin && finCreneau > rdv.debut) ||
                     (heure >= rdv.debut && heure < rdv.fin) ||
@@ -251,12 +251,8 @@ async function updateCalendar() {
         console.log("🚫 Jours désactivés dans Flatpickr :", allDays);
 
         // Appliquer les jours désactivés à Flatpickr
-        if (dateInput._flatpickr) {
-            dateInput._flatpickr.set("disable", allDays);
-            dateInput._flatpickr.redraw();
-        } else {
-            console.error("⚠ Flatpickr n'est pas encore initialisé !");
-        }
+        dateInput.flatpickrInstance.set("disable", allDays);
+        dateInput.flatpickrInstance.redraw();
 
     } catch (error) {
         console.error("❌ Erreur lors de la mise à jour du calendrier :", error);
