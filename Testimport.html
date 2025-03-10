@@ -1,68 +1,35 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulaire de Test</title>
-</head>
-<body>
-    <h2>Formulaire de Test</h2>
-    <form id="form">
-        <label for="nom">Nom :</label>
-        <input type="text" id="nom" name="nom" required><br><br>
+<script>
+    document.getElementById("form").addEventListener("submit", function(event) {
+        event.preventDefault();
 
-        <label for="email">Email :</label>
-        <input type="email" id="email" name="email" required><br><br>
+        // Récupération des données du formulaire
+        const formData = {
+            nom: document.getElementById("nom").value,
+            email: document.getElementById("email").value,
+            telephone: document.getElementById("telephone").value,
+            prestation: document.getElementById("prestation").value,
+            date: document.getElementById("date").value,
+            heure: document.getElementById("heure").value,
+            message: document.getElementById("message").value
+        };
 
-        <label for="telephone">Téléphone :</label>
-        <input type="tel" id="telephone" name="telephone" required><br><br>
-
-        <label for="prestation">Prestation :</label>
-        <input type="text" id="prestation" name="prestation" required><br><br>
-
-        <label for="date">Date :</label>
-        <input type="date" id="date" name="date" required><br><br>
-
-        <label for="heure">Heure :</label>
-        <input type="time" id="heure" name="heure" required><br><br>
-
-        <label for="message">Message :</label>
-        <textarea id="message" name="message"></textarea><br><br>
-
-        <button type="submit">Envoyer</button>
-    </form>
-
-    <script>
-        document.getElementById("form").addEventListener("submit", function(event) {
-            event.preventDefault();
-
-            // Récupération des données du formulaire
-            const formData = {
-                nom: document.getElementById("nom").value,
-                email: document.getElementById("email").value,
-                telephone: document.getElementById("telephone").value,
-                prestation: document.getElementById("prestation").value,
-                date: document.getElementById("date").value,
-                heure: document.getElementById("heure").value,
-                message: document.getElementById("message").value
-            };
-
-            // Envoi des données au script Google Apps
-            fetch("https://script.google.com/macros/s/AKfycbylApaujrkx_-5rizuld-i9QK2LRuJhmw2XW_phAAMMB4qstMLawmqY2XCoviTbC6ef/exec", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "success") {
-                    alert("Données envoyées avec succès !");
-                } else {
-                    alert("Erreur : " + data.message);
-                }
-            })
-            .catch(error => console.error("Erreur :", error));
-        });
-    </script>
-</body>
-</html>
+        // Envoi des données au script Google Apps
+        fetch("https://script.google.com/macros/s/AKfycbwQeiLqRt9VDtSaF4pjLbMbdw815a852WqbrHHC4fDInO1JHNdEw-3dhDVYRuih8OfC/exec", {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData),
+            mode: "cors" // ⚠️ Ajout du mode CORS pour éviter les erreurs de préflight
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                alert("Données envoyées avec succès !");
+            } else {
+                alert("Erreur : " + data.message);
+            }
+        })
+        .catch(error => console.error("Erreur :", error));
+    });
+</script>
