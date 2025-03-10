@@ -147,10 +147,10 @@ document.addEventListener("DOMContentLoaded", function () {
     if (dateInput) {
         let flatpickrInstance = flatpickr(dateInput, {
             dateFormat: "Y-m-d",
-            disable: [], // Désactiver les jours sera mis à jour dynamiquement
+            disable: [], // Désactivation des jours mise à jour dynamiquement
             locale: "fr",
             minDate: "today", // Désactiver tous les jours passés
-            onOpen: updateCalendar // Met à jour les jours disponibles quand l'utilisateur ouvre le calendrier
+            onOpen: updateCalendar // Met à jour les jours disponibles lors de l'ouverture
         });
 
         // Stocke l'instance de Flatpickr pour la mise à jour dynamique
@@ -244,6 +244,7 @@ async function updateCalendar() {
         let currentDate = new Date();
         let maxDate = new Date(derniereDateDispo); // La dernière date dispo issue du fichier CSV
         currentDate.setHours(0, 0, 0, 0);
+        maxDate.setHours(23, 59, 59, 999);
 
         while (currentDate <= maxDate) {
             let formattedDate = currentDate.toISOString().split('T')[0]; // Format YYYY-MM-DD
@@ -252,6 +253,17 @@ async function updateCalendar() {
             }
             currentDate.setDate(currentDate.getDate() + 1);
         }
+
+        // Désactiver tous les jours après la dernière date disponible
+        let afterLastDate = [];
+        let futureDate = new Date(maxDate);
+        futureDate.setDate(futureDate.getDate() + 1);
+        while (futureDate <= new Date(2099, 11, 31)) { // Bloquer jusqu'à une date lointaine
+            afterLastDate.push(futureDate.toISOString().split('T')[0]);
+            futureDate.setDate(futureDate.getDate() + 1);
+        }
+
+        allDays = allDays.concat(afterLastDate);
 
         console.log("🚫 Jours désactivés dans Flatpickr :", allDays);
 
@@ -276,17 +288,4 @@ function parseCSV(csvText) {
         });
         return obj;
     });
-}
-
-// ** Convertir HH:MM en minutes depuis minuit **
-function parseTime(hhmm) {
-    const [h, m] = hhmm.split(":").map(Number);
-    return h * 60 + m;
-}
-
-// ** Convertir minutes en HH:MM **
-function formatTime(minutes) {
-    let h = Math.floor(minutes / 60);
-    let m = minutes % 60;
-    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
 }
