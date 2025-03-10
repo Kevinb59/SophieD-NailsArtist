@@ -204,11 +204,10 @@ async function updateCalendar() {
         }
         const dureePrestation = parseInt(prestationData.duree);
 
-        // Déterminer la dernière date disponible dans le fichier CSV
-        let derniereDateDispo = disponibilites.reduce((max, dispo) => dispo.date > max ? dispo.date : max, "2000-01-01");
-
-        // Déterminer les jours valides
+        // Déterminer les jours réellement disponibles pour la prestation
         let joursDisponibles = [];
+        let derniereDateReelle = null; // La vraie dernière date où il y a un créneau dispo
+
         for (let dispo of disponibilites) {
             let heureDebut = parseTime(dispo.heure_début);
             let heureFin = parseTime(dispo.heure_fin);
@@ -234,15 +233,19 @@ async function updateCalendar() {
                 }
             }
 
-            if (libre) joursDisponibles.push(dispo.date);
+            if (libre) {
+                joursDisponibles.push(dispo.date);
+                derniereDateReelle = dispo.date; // Met à jour la dernière date où il y a un créneau disponible
+            }
         }
 
         console.log("✅ Jours valides pour cette prestation :", joursDisponibles);
+        console.log("📅 Dernière date réelle avec créneau :", derniereDateReelle);
 
         // Désactiver tous les jours sauf ceux disponibles
         let allDays = [];
         let currentDate = new Date();
-        let maxDate = new Date(derniereDateDispo); // La dernière date dispo issue du fichier CSV
+        let maxDate = derniereDateReelle ? new Date(derniereDateReelle) : new Date(); // Utiliser la dernière date réelle
         currentDate.setHours(0, 0, 0, 0);
         maxDate.setHours(23, 59, 59, 999);
 
@@ -254,7 +257,7 @@ async function updateCalendar() {
             currentDate.setDate(currentDate.getDate() + 1);
         }
 
-        // Désactiver tous les jours après la dernière date disponible
+        // Bloquer tous les jours après la dernière date réelle
         let afterLastDate = [];
         let futureDate = new Date(maxDate);
         futureDate.setDate(futureDate.getDate() + 1);
@@ -267,7 +270,7 @@ async function updateCalendar() {
 
         console.log("🚫 Jours désactivés dans Flatpickr :", allDays);
 
-        // Appliquer les jours désactivés à Flatpickr
+        // Appliquer la désactivation des jours
         dateInput.flatpickrInstance.set("disable", allDays);
         dateInput.flatpickrInstance.redraw();
 
