@@ -204,10 +204,11 @@ async function updateCalendar() {
         }
         const dureePrestation = parseInt(prestationData.duree);
 
-        // Déterminer les jours réellement disponibles pour la prestation
-        let joursDisponibles = [];
-        let derniereDateDispo = "2000-01-01";
+        // Déterminer la dernière date disponible dans le fichier CSV
+        let derniereDateDispo = disponibilites.reduce((max, dispo) => dispo.date > max ? dispo.date : max, "2000-01-01");
 
+        // Déterminer les jours valides
+        let joursDisponibles = [];
         for (let dispo of disponibilites) {
             let heureDebut = parseTime(dispo.heure_début);
             let heureFin = parseTime(dispo.heure_fin);
@@ -233,18 +234,15 @@ async function updateCalendar() {
                 }
             }
 
-            if (libre) {
-                joursDisponibles.push(dispo.date);
-                derniereDateDispo = dispo.date;
-            }
+            if (libre) joursDisponibles.push(dispo.date);
         }
 
         console.log("✅ Jours valides pour cette prestation :", joursDisponibles);
 
-        // Désactiver tous les jours sauf ceux réellement disponibles
+        // Désactiver tous les jours sauf ceux disponibles
         let allDays = [];
         let currentDate = new Date();
-        let maxDate = new Date(derniereDateDispo); // La dernière date où il y a une dispo réelle
+        let maxDate = new Date(derniereDateDispo); // La dernière date dispo issue du fichier CSV
         currentDate.setHours(0, 0, 0, 0);
         maxDate.setHours(23, 59, 59, 999);
 
@@ -256,9 +254,20 @@ async function updateCalendar() {
             currentDate.setDate(currentDate.getDate() + 1);
         }
 
+        // Désactiver tous les jours après la dernière date disponible
+        let afterLastDate = [];
+        let futureDate = new Date(maxDate);
+        futureDate.setDate(futureDate.getDate() + 1);
+        while (futureDate <= new Date(2099, 11, 31)) { // Bloquer jusqu'à une date lointaine
+            afterLastDate.push(futureDate.toISOString().split('T')[0]);
+            futureDate.setDate(futureDate.getDate() + 1);
+        }
+
+        allDays = allDays.concat(afterLastDate);
+
         console.log("🚫 Jours désactivés dans Flatpickr :", allDays);
 
-        // Appliquer la désactivation des jours
+        // Appliquer les jours désactivés à Flatpickr
         dateInput.flatpickrInstance.set("disable", allDays);
         dateInput.flatpickrInstance.redraw();
 
@@ -280,4 +289,3 @@ function parseCSV(csvText) {
         return obj;
     });
 }
-
