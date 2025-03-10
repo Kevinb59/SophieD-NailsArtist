@@ -151,6 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
             locale: "fr",
             minDate: "today", // Désactiver tous les jours passés
             onOpen: updateCalendar // Met à jour les jours disponibles lors de l'ouverture
+            disableMobile: true // 💡 Désactive le calendrier natif sur mobile et force Flatpickr
         });
 
         // Stocke l'instance de Flatpickr pour la mise à jour dynamique
