@@ -159,13 +159,6 @@ document.addEventListener("DOMContentLoaded", function () {
     dateInput.addEventListener("change", updateDisponibilites);
 });
 
-// ** Charger et analyser les données CSV **
-const csvLinks = {
-    disponibilites: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?output=csv",
-    rdv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?gid=1845008987&single=true&output=csv",
-    prestations: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?gid=1742624469&single=true&output=csv"
-};
-
 // ** Met à jour les jours activés/désactivés dans Flatpickr **
 async function updateCalendar() {
     const prestation = document.getElementById("prestation").value;
