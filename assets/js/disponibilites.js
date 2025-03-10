@@ -141,21 +141,25 @@ function formatTime(minutes) {
 document.addEventListener("DOMContentLoaded", function () {
     const dateInput = document.getElementById("date");
     const prestationSelect = document.getElementById("prestation");
-    const horaireSelect = document.getElementById("horaire");
 
-    // Vérifie si l'élément existe avant d'initialiser Flatpickr
     if (dateInput) {
         let flatpickrInstance = flatpickr(dateInput, {
             dateFormat: "Y-m-d",
-            disable: [], // Désactivation des jours mise à jour dynamiquement
+            disable: [], // Désactivation dynamique des jours
             locale: "fr",
-            minDate: "today", // Désactiver tous les jours passés
-            onOpen: updateCalendar // Met à jour les jours disponibles lors de l'ouverture
-            disableMobile: true // 💡 Désactive le calendrier natif sur mobile et force Flatpickr
+            minDate: "today", // Empêche de sélectionner une date passée
+            disableMobile: true, // Force l'utilisation de Flatpickr sur mobile
+            clickOpens: false, // Empêche l'ouverture automatique sur focus
+            onOpen: updateCalendar, // Met à jour les jours disponibles lors de l'ouverture
         });
 
-        // Stocke l'instance de Flatpickr pour la mise à jour dynamique
         dateInput.flatpickrInstance = flatpickrInstance;
+
+        // ✅ Force Flatpickr à s'ouvrir manuellement sur mobile
+        dateInput.addEventListener("click", function (event) {
+            event.preventDefault(); // Empêche le clavier natif de s'afficher
+            dateInput.flatpickrInstance.open(); // Ouvre Flatpickr manuellement
+        });
     } else {
         console.error("❌ L'élément #date n'a pas été trouvé dans le DOM.");
     }
@@ -207,7 +211,7 @@ async function updateCalendar() {
 
         // Déterminer les jours réellement disponibles pour la prestation
         let joursDisponibles = [];
-        let derniereDateReelle = null; // La vraie dernière date où il y a un créneau dispo
+        let derniereDateReelle = null; // La dernière date où un créneau est dispo
 
         for (let dispo of disponibilites) {
             let heureDebut = parseTime(dispo.heure_début);
@@ -236,7 +240,7 @@ async function updateCalendar() {
 
             if (libre) {
                 joursDisponibles.push(dispo.date);
-                derniereDateReelle = dispo.date; // Met à jour la dernière date où il y a un créneau disponible
+                derniereDateReelle = dispo.date; // Met à jour la dernière date où il y a un créneau dispo
             }
         }
 
@@ -246,7 +250,7 @@ async function updateCalendar() {
         // Désactiver tous les jours sauf ceux disponibles
         let allDays = [];
         let currentDate = new Date();
-        let maxDate = derniereDateReelle ? new Date(derniereDateReelle) : new Date(); // Utiliser la dernière date réelle
+        let maxDate = derniereDateReelle ? new Date(derniereDateReelle) : new Date();
         currentDate.setHours(0, 0, 0, 0);
         maxDate.setHours(23, 59, 59, 999);
 
@@ -257,17 +261,6 @@ async function updateCalendar() {
             }
             currentDate.setDate(currentDate.getDate() + 1);
         }
-
-        // Bloquer tous les jours après la dernière date réelle
-        let afterLastDate = [];
-        let futureDate = new Date(maxDate);
-        futureDate.setDate(futureDate.getDate() + 1);
-        while (futureDate <= new Date(2099, 11, 31)) { // Bloquer jusqu'à une date lointaine
-            afterLastDate.push(futureDate.toISOString().split('T')[0]);
-            futureDate.setDate(futureDate.getDate() + 1);
-        }
-
-        allDays = allDays.concat(afterLastDate);
 
         console.log("🚫 Jours désactivés dans Flatpickr :", allDays);
 
