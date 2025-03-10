@@ -305,19 +305,22 @@
 								
 								<!-- Script JavaScript pour gérer l'affichage des sections -->
 								<script>
-								function toggleFields() {
-								    var prestation = document.getElementById("prestation").value;
-								    var supplements = document.getElementById("supplements");
-								    var longueurOngles = document.getElementById("longueur-ongles");
-								
-								    if (prestation === "Nail Art Libre") {
-								        supplements.style.display = "none";  // Masque les suppléments
-								        longueurOngles.style.display = "block"; // Affiche Court / Long
-								    } else {
-								        supplements.style.display = "block";  // Affiche les suppléments
-								        longueurOngles.style.display = "none"; // Masque Court / Long
-								    }
-								}
+									function toggleFields() {
+									    var prestation = document.getElementById("prestation").value;
+									    var supplements = document.getElementById("supplements");
+									    var longueurOngles = document.getElementById("longueur-ongles");
+									    var nouveauClient = document.getElementById("nouveau-client").parentNode; // Récupérer le conteneur
+									
+									    if (prestation === "Nail Art Libre") {
+									        supplements.style.display = "none";  // Masque les suppléments
+									        longueurOngles.style.display = "block"; // Affiche Court / Long
+									        nouveauClient.style.marginTop = "10px"; // Ajuster l'espace
+									    } else {
+									        supplements.style.display = "block";  // Affiche les suppléments
+									        longueurOngles.style.display = "none"; // Masque Court / Long
+									        nouveauClient.style.marginTop = "0"; // Réinitialiser l'espace
+									    }
+									}
 								</script>
 
 								<hr />
