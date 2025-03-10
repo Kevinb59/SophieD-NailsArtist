@@ -39,7 +39,7 @@
             let formData = new FormData(this);
             let data = Object.fromEntries(formData.entries());
 
-            let response = await fetch("TON_URL_SCRIPT_GAS", {
+            let response = await fetch("https://script.google.com/macros/s/AKfycbwDRfouX0czgRSor0CoCJosZDNQAxVCaKCQFUcKa-TpopaHiMNksG8Jx4Y2opxVufCU/exec", {
                 method: "POST",
                 body: JSON.stringify(data),
                 headers: { "Content-Type": "application/json" }
