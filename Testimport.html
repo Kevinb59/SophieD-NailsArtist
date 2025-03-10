@@ -38,24 +38,22 @@
 
             // Récupération des données du formulaire
             const formData = {
-                nom: document.getElementById("nom").value,
-                email: document.getElementById("email").value,
-                telephone: document.getElementById("telephone").value,
-                prestation: document.getElementById("prestation").value,
-                date: document.getElementById("date").value,
-                heure: document.getElementById("heure").value,
-                message: document.getElementById("message").value
+                nom: encodeURIComponent(document.getElementById("nom").value),
+                email: encodeURIComponent(document.getElementById("email").value),
+                telephone: encodeURIComponent(document.getElementById("telephone").value),
+                prestation: encodeURIComponent(document.getElementById("prestation").value),
+                date: encodeURIComponent(document.getElementById("date").value),
+                heure: encodeURIComponent(document.getElementById("heure").value),
+                message: encodeURIComponent(document.getElementById("message").value)
             };
 
-            // 🔹 Utilisation du proxy pour contourner la restriction CORS
-            const scriptURL = "https://script.google.com/macros/s/AKfycbyPI8QhZZd1aftZVvcQWpDejzHspBfbc_bqsuUfgLG2coOv8UdEyC_IhJbutMLvQDNd/exec";
-            const proxyURL = "https://cors-anywhere.herokuapp.com/" + scriptURL;
+            // Construction de l'URL avec les paramètres GET
+            const scriptURL = "https://script.google.com/macros/s/AKfycbwASAoxzy3hZ_CRMA-tjzGtvpJ3leyu5o_IfBa1HyKsEFS1ijDNP-wToaHoOPDoR9NB/exec";
+            const queryParams = `?nom=${formData.nom}&email=${formData.email}&telephone=${formData.telephone}&prestation=${formData.prestation}&date=${formData.date}&heure=${formData.heure}&message=${formData.message}`;
+            const fullURL = scriptURL + queryParams;
 
-            fetch(proxyURL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData)
-            })
+            // Envoi des données avec GET (aucun problème CORS ici)
+            fetch(fullURL, { method: "GET" })
             .then(response => response.json())
             .then(data => {
                 if (data.status === "success") {
