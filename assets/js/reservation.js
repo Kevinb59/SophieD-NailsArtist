@@ -30,7 +30,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 uploadBtn.innerHTML = "Échec de l’upload ❌"; // Échec
             });
     });
-});
 
     // ▶ Gestion de l'envoi du formulaire
     form.addEventListener("submit", function (event) {
@@ -79,4 +78,5 @@ document.addEventListener("DOMContentLoaded", function () {
                 submitBtn.disabled = false;
             });
     });
+
 });
