@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("upload_preset", "sophiednailarstist"); // Ton preset Cloudinary
+        formData.append("upload_preset", "sophiednailartist"); // Ton preset Cloudinary
 
         fetch("https://api.cloudinary.com/v1_1/dkp7f3q6o/image/upload", {
             method: "POST",
