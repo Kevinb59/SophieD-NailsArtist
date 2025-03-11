@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
             image: imageUrl // Lien Cloudinary
         };
 
-        fetch("YOUR_GOOGLE_APPS_SCRIPT_URL", {
+        fetch("https://script.google.com/macros/s/AKfycbyWAtq8cWDRaMdlYes3ZRdujqJYHsadSOpb0tt4CNZI9jHH2UMLSoxxLfJWjKvC8KuJ/exec", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData),
