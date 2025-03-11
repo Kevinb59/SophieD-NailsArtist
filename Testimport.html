@@ -48,11 +48,12 @@
             };
 
             // URL du script Google Apps (mise à jour après chaque déploiement)
-            const scriptURL = "https://script.google.com/macros/s/AKfycbzRNZQMMMf8BeMgRH9uhhmB6CDQVRATRA9YcvNH20n1Ixhd_bhsVc5Hfh3j4WPUt8iX/exec";
+            const scriptURL = "https://script.google.com/macros/s/AKfycbyzob-r1IeauwKFMemZTC9damVKvkeRq9VGHQo89Zg5uBcM-bbmt8k_WxgPoE7dz-3Q/exec";
 
             // Envoi de la requête avec fetch (en POST)
             fetch(scriptURL, {
                 method: "POST",
+                mode: "cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData)
             })
