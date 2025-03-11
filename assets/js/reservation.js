@@ -41,17 +41,17 @@ document.addEventListener("DOMContentLoaded", function () {
             email: document.getElementById("email").value,
             telephone: "'" + document.getElementById("telephone").value, // Préserve le 0
             date: document.getElementById("date").value,
-            heure: document.getElementById("heure").value.split(" - ")[0], // Garde l'heure de début
+            heure: document.getElementById("horaire").value.split(" - ")[0], // Garde l'heure de début
             prestation: document.getElementById("prestation").value,
             message: document.getElementById("message").value,
             newsletter: document.getElementById("newsletter").checked ? "TRUE" : "",
-            supp_ep: document.getElementById("supp_ep").checked ? "TRUE" : "",
-            supp_p: document.getElementById("supp_p").checked ? "TRUE" : "",
-            supp_s10: document.getElementById("supp_s10").checked ? "TRUE" : "",
-            supp_s20: document.getElementById("supp_s20").checked ? "TRUE" : "",
-            supp_t: document.getElementById("supp_t").value || "0",
-            supp_s: document.getElementById("supp_s").value || "0",
-            supp_3d: document.getElementById("supp_3d").value || "0",
+            supp_ep: document.getElementById("effet-poudre").checked ? "TRUE" : "",
+            supp_p: document.getElementById("paillettes").checked ? "TRUE" : "",
+            supp_s10: document.getElementById("strass-10").checked ? "TRUE" : "",
+            supp_s20: document.getElementById("strass-20").checked ? "TRUE" : "",
+            supp_t: document.getElementById("nail-art-travaille").value || "0",
+            supp_s: document.getElementById("nail-art-simple").value || "0",
+            supp_3d: document.getElementById("chrome-3d").value || "0",
             nailart_libre: document.querySelector('input[name="nailart_libre"]:checked') ? 
                 document.querySelector('input[name="nailart_libre"]:checked').value : "",
             image: imageUrl // Lien Cloudinary
