@@ -36,7 +36,7 @@
         document.getElementById("form").addEventListener("submit", function(event) {
             event.preventDefault();
 
-            // Récupération des données et encodage pour URL
+            // Récupération des données du formulaire et encodage URL pour éviter les erreurs
             const formData = {
                 nom: encodeURIComponent(document.getElementById("nom").value),
                 email: encodeURIComponent(document.getElementById("email").value),
@@ -47,30 +47,32 @@
                 message: encodeURIComponent(document.getElementById("message").value)
             };
 
-            // URL du script Google Apps Script
-            const scriptURL = "https://script.google.com/macros/s/AKfycbwASAoxzy3hZ_CRMA-tjzGtvpJ3leyu5o_IfBa1HyKsEFS1ijDNP-wToaHoOPDoR9NB/exec";
+            // Construction de l'URL GET avec les paramètres
+            const scriptURL = "https://script.google.com/macros/s/AKfycbyf-tljUXl3LDXRSEyAdhA3IYloj3KhWASNrHNQ49GKkdhGq8unCuB2RmLCJcYm_Qon/exec";
+            const queryParams = `?nom=${formData.nom}&email=${formData.email}&telephone=${formData.telephone}&prestation=${formData.prestation}&date=${formData.date}&heure=${formData.heure}&message=${formData.message}`;
+            const fullUrl = scriptURL + queryParams;
 
-            // Construction de l'URL avec les paramètres GET
-            const queryParams = `?nom=${formData.nom}&email=${formData.email}&telephone=${formData.telephone}` +
-                                `&prestation=${formData.prestation}&date=${formData.date}&heure=${formData.heure}&message=${formData.message}`;
-
-            const fullURL = scriptURL + queryParams;
-
-            // Envoi des données avec GET
-            fetch(fullURL, { method: "GET" })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "success") {
-                    alert("Données envoyées avec succès !");
-                    document.getElementById("form").reset(); // Réinitialise le formulaire
-                } else {
-                    alert("Erreur : " + data.message);
-                }
-            })
-            .catch(error => {
-                console.error("Erreur :", error);
-                alert("Une erreur est survenue, veuillez réessayer.");
-            });
+            // Envoi des données via Fetch (GET)
+            fetch(fullUrl, { method: "GET" })
+                .then(response => response.text()) // Récupère la réponse en texte
+                .then(data => {
+                    console.log("Réponse brute du serveur:", data);
+                    try {
+                        const jsonData = JSON.parse(data); // Essaie de le parser en JSON
+                        if (jsonData.status === "success") {
+                            alert("Données envoyées avec succès !");
+                        } else {
+                            alert("Erreur : " + jsonData.message);
+                        }
+                    } catch (e) {
+                        console.error("Erreur de parsing JSON:", e);
+                        alert("Erreur inattendue. Vérifie la console.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Erreur :", error);
+                    alert("Une erreur est survenue, veuillez réessayer.");
+                });
         });
     </script>
 </body>
