@@ -52,8 +52,8 @@ document.addEventListener("DOMContentLoaded", function () {
             supp_t: document.getElementById("nail-art-travaille").value || "0",
             supp_s: document.getElementById("nail-art-simple").value || "0",
             supp_3d: document.getElementById("chrome-3d").value || "0",
-            nailart_libre: document.querySelector('input[name="nailart_libre"]:checked') ? 
-                document.querySelector('input[name="nailart_libre"]:checked').value : "",
+            nailart_libre: document.querySelector('input[name="longueur"]:checked') ? 
+                document.querySelector('input[name="longueur"]:checked').value : "",
             image: imageUrl // Lien Cloudinary
         };
 
