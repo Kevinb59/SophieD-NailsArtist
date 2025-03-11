@@ -2,16 +2,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("formulaire");
     const submitBtn = document.querySelector("input[type='submit']");
     const imageInput = document.getElementById("image");
-    const uploadBtn = document.querySelector(".actions .button"); // Sélectionne le bouton
+    const uploadBtn = document.querySelector(".actions .button"); // Bouton d'upload
 
-    let imageUrl = ""; // Stocke l'URL Cloudinary après l'upload
+    let imageUrl = ""; // Stocke l'URL de l'image après upload sur Cloudinary
 
     // ▶ Gestion de l'upload sur Cloudinary
     imageInput.addEventListener("change", function () {
         const file = imageInput.files[0];
         if (!file) return;
 
-        uploadBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Envoi de l’image...'; // Indique que l'upload est en cours
+        uploadBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Envoi de l’image...'; // Animation d'upload
 
         const formData = new FormData();
         formData.append("file", file);
@@ -23,60 +23,69 @@ document.addEventListener("DOMContentLoaded", function () {
         })
             .then(response => response.json())
             .then(data => {
-                imageUrl = data.secure_url; // URL de l’image
-                uploadBtn.innerHTML = "Image ajoutée ✅"; // Succès
+                imageUrl = data.secure_url; // Stocke le lien de l'image
+                uploadBtn.innerHTML = "Image ajoutée ✅"; // Message de succès
             })
             .catch(() => {
-                uploadBtn.innerHTML = "Échec de l’upload ❌"; // Échec
+                uploadBtn.innerHTML = "Échec de l’upload ❌"; // Message d'erreur
             });
     });
 
-    // ▶ Gestion de l'envoi du formulaire
+    // ▶ Gestion de l'envoi du formulaire via GET (comme dans ton test)
     form.addEventListener("submit", function (event) {
         event.preventDefault();
         submitBtn.value = "Envoi en cours...";
         submitBtn.disabled = true;
 
         const formData = {
-            nom: document.getElementById("nom").value,
-            email: document.getElementById("email").value,
-            telephone: "'" + document.getElementById("telephone").value, // Préserve le 0
-            date: document.getElementById("date").value,
-            heure: document.getElementById("horaire").value.split(" - ")[0], // Garde l'heure de début
-            prestation: document.getElementById("prestation").value,
-            message: document.getElementById("message").value,
+            nom: encodeURIComponent(document.getElementById("nom").value),
+            email: encodeURIComponent(document.getElementById("email").value),
+            telephone: encodeURIComponent("'" + document.getElementById("telephone").value), // Préserve le 0
+            date: encodeURIComponent(document.getElementById("date").value),
+            heure: encodeURIComponent(document.getElementById("horaire").value.split(" - ")[0]), // Garde l'heure de début
+            prestation: encodeURIComponent(document.getElementById("prestation").value),
+            message: encodeURIComponent(document.getElementById("message").value),
             newsletter: document.getElementById("newsletter").checked ? "TRUE" : "",
             supp_ep: document.getElementById("effet-poudre").checked ? "TRUE" : "",
             supp_p: document.getElementById("paillettes").checked ? "TRUE" : "",
             supp_s10: document.getElementById("strass-10").checked ? "TRUE" : "",
             supp_s20: document.getElementById("strass-20").checked ? "TRUE" : "",
-            supp_t: document.getElementById("nail-art-travaille").value || "0",
-            supp_s: document.getElementById("nail-art-simple").value || "0",
-            supp_3d: document.getElementById("chrome-3d").value || "0",
-            nailart_libre: document.querySelector('input[name="longueur"]:checked') ? 
-                document.querySelector('input[name="longueur"]:checked').value : "",
-            image: imageUrl // Lien Cloudinary
+            supp_t: encodeURIComponent(document.getElementById("nail-art-travaille").value || "0"),
+            supp_s: encodeURIComponent(document.getElementById("nail-art-simple").value || "0"),
+            supp_3d: encodeURIComponent(document.getElementById("chrome-3d").value || "0"),
+            nailart_libre: encodeURIComponent(document.querySelector('input[name="longueur"]:checked') ? 
+                document.querySelector('input[name="longueur"]:checked').value : ""),
+            image: encodeURIComponent(imageUrl) // Lien de l’image Cloudinary
         };
 
-        fetch("https://script.google.com/macros/s/AKfycbyWAtq8cWDRaMdlYes3ZRdujqJYHsadSOpb0tt4CNZI9jHH2UMLSoxxLfJWjKvC8KuJ/exec", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formData),
-        })
-            .then(response => response.json())
+        // Construction de l'URL GET avec les paramètres
+        const scriptURL = "https://script.google.com/macros/s/AKfycbyWAtq8cWDRaMdlYes3ZRdujqJYHsadSOpb0tt4CNZI9jHH2UMLSoxxLfJWjKvC8KuJ/exec";
+        const queryParams = Object.keys(formData).map(key => `${key}=${formData[key]}`).join("&");
+        const fullUrl = scriptURL + "?" + queryParams;
+
+        // Envoi des données via Fetch (GET)
+        fetch(fullUrl, { method: "GET" })
+            .then(response => response.text()) // Récupère la réponse en texte
             .then(data => {
-                if (data.status === "success") {
-                    alert("Réservation envoyée avec succès !");
-                    submitBtn.value = "Réservation envoyée";
-                } else {
-                    throw new Error(data.message);
+                console.log("Réponse brute du serveur:", data);
+                try {
+                    const jsonData = JSON.parse(data); // Essaie de le parser en JSON
+                    if (jsonData.status === "success") {
+                        alert("Réservation envoyée avec succès !");
+                        submitBtn.value = "Réservation envoyée";
+                    } else {
+                        throw new Error(jsonData.message);
+                    }
+                } catch (e) {
+                    console.error("Erreur de parsing JSON:", e);
+                    alert("Erreur inattendue. Vérifie la console.");
                 }
             })
             .catch(error => {
-                alert("Erreur lors de l’envoi, veuillez réessayer.");
+                console.error("Erreur :", error);
+                alert("Une erreur est survenue, veuillez réessayer.");
                 submitBtn.value = "Réserver";
                 submitBtn.disabled = false;
             });
     });
-
 });
