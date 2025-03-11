@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("formulaire");
     const submitBtn = document.querySelector("input[type='submit']");
     const imageInput = document.getElementById("image");
-    const fileNameDisplay = document.getElementById("file-name");
+    const uploadBtn = document.querySelector(".actions .button"); // Sélectionne le bouton
 
     let imageUrl = ""; // Stocke l'URL Cloudinary après l'upload
 
@@ -11,7 +11,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const file = imageInput.files[0];
         if (!file) return;
 
-        fileNameDisplay.textContent = "Envoi de l’image...";
+        uploadBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Envoi de l’image...'; // Indique que l'upload est en cours
+
         const formData = new FormData();
         formData.append("file", file);
         formData.append("upload_preset", "sophiednailarstist"); // Ton preset Cloudinary
@@ -23,12 +24,13 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(response => response.json())
             .then(data => {
                 imageUrl = data.secure_url; // URL de l’image
-                fileNameDisplay.textContent = "Image envoyée avec succès !";
+                uploadBtn.innerHTML = "Image ajoutée ✅"; // Succès
             })
             .catch(() => {
-                fileNameDisplay.textContent = "Erreur lors de l’envoi de l’image.";
+                uploadBtn.innerHTML = "Échec de l’upload ❌"; // Échec
             });
     });
+});
 
     // ▶ Gestion de l'envoi du formulaire
     form.addEventListener("submit", function (event) {
