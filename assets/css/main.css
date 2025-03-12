@@ -4799,3 +4799,49 @@ input, select, textarea {
     align-items: center;
     margin-top: 10px;
 }
+
+
+
+
+
+
+
+.gallery img {
+  border-radius: 10px;
+}
+
+@media screen and (max-width: 1680px) {
+  .gallery img {
+    width: 180px;
+  }
+}
+
+@media screen and (max-width: 1280px) {
+  .gallery img {
+    width: 160px;
+  }
+}
+
+@media screen and (max-width: 980px) {
+  .gallery img {
+    width: 140px;
+  }
+}
+
+@media screen and (max-width: 736px) {
+  .gallery img {
+    width: 120px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .gallery img {
+    width: 100px;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .gallery img {
+    width: 80px;
+  }
+}
