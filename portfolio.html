@@ -35,14 +35,24 @@
 					</nav>
 
 <!-- Main -->
-					<div id="main">
-
-<!-- Galerie dynamique -->
-							<section class="posts" id="portfolio-gallery">
-								<!-- Contenu dynamique chargé ici -->
-							</section>
-
-					</div>
+			<div id="main">
+			
+			    <!-- Galerie dynamique des albums -->
+			    <section class="posts" id="portfolio-gallery">
+			        <!-- Contenu des albums chargé dynamiquement ici -->
+			    </section>
+			
+			    <!-- Vue détaillée d'un album sélectionné (cachée par défaut) -->
+			    <section id="album-view" class="posts" style="display: none;">
+			        <ul class="actions special">
+			            <li><a href="#" id="close-album" class="button primary icon solid fa-arrow-left">Retour aux albums</a></li>
+			        </ul>
+			        <div id="album-content" class="gallery">
+			            <!-- Les images de l'album sélectionné seront ajoutées ici -->
+			        </div>
+			    </section>
+			
+			</div>
 
 <!-- Footer -->
 					<footer id="footer">
