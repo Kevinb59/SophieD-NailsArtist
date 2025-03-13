@@ -100,6 +100,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         document.body.appendChild(overlay);
         document.body.appendChild(modal);
 
+        // Supprime tout flou appliqué par d'autres styles globaux
+        modal.style.backdropFilter = "none";
+        modal.style.filter = "none";
+
         overlay.addEventListener("click", closeFullscreen);
         modal.querySelector(".close-modal").addEventListener("click", closeFullscreen);
     }
