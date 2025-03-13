@@ -4845,3 +4845,76 @@ input, select, textarea {
     width: 80px;
   }
 }
+
+
+
+
+
+
+/* Ajustement de la galerie d'albums */
+#portfolio-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+/* Miniature des albums */
+.album-thumbnail {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 15px;
+}
+
+/* Vue d'un album */
+#album-view {
+    display: none;
+    text-align: center;
+}
+
+/* Galerie des images dans un album */
+#album-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+    justify-content: center;
+}
+
+/* Miniatures des photos */
+.thumbnail {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* Plein écran */
+.fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Image plein écran */
+.fullscreen-image {
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 10px;
+}
+
+/* Bouton de retour */
+#close-album {
+    display: block;
+    margin: 20px auto;
+    text-align: center;
+}
+
