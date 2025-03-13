@@ -4815,12 +4815,9 @@ input, select, textarea {
    =================== */
 
 #portfolio-gallery {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 albums par ligne sur PC */
-    gap: 20px;
-    justify-content: center;
-    max-width: 1200px;
-    margin: 0 auto;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+	gap: 10px;
 }
 
 /* Miniatures des albums */
@@ -4878,25 +4875,37 @@ input, select, textarea {
    =================== */
 
 .fullscreen-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.9);
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0, 0, 0, 0.7);
+	backdrop-filter: blur(10px);
+	z-index: 999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .fullscreen-image {
-    max-width: 90vw;
-    max-height: 90vh;
-    object-fit: contain;
-    filter: none !important;
-    backdrop-filter: none !important;
-    display: block;
+	max-width: 100vw;
+	max-height: 100vh;
+	width: auto;
+	height: auto;
+	object-fit: contain;
+}
+
+.fullscreen-modal {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
 }
 
 /* Bouton de fermeture */
