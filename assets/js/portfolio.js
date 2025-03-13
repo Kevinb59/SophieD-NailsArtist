@@ -100,6 +100,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         document.body.appendChild(overlay);
         document.body.appendChild(modal);
 
+        // ✅ Assurer l'affichage plein écran sur mobile
+        modal.style.width = "100vw";
+        modal.style.height = "100vh";
+
         // Supprime tout flou appliqué par d'autres styles globaux
         modal.style.backdropFilter = "none";
         modal.style.filter = "none";
