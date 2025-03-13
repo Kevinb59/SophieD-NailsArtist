@@ -4818,15 +4818,18 @@ input, select, textarea {
     display: grid;
     grid-template-columns: repeat(2, 1fr); /* 2 albums par ligne sur PC */
     gap: 20px;
-    /*justify-content: center;*/
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 /* Miniatures des albums */
 #portfolio-gallery article .image img {
     width: 100%;
-    height: 210px; /* Uniformisation */
+    height: 250px; /* Uniformisation */
     border-radius: 0; /* Suppression des bords arrondis */
     object-fit: cover;
+    display: block;
 }
 
 /* Centrage de la description des albums */
@@ -4836,6 +4839,7 @@ input, select, textarea {
     font-style: italic;
     color: #444;
     margin: 10px auto;
+    max-width: 90%;
 }
 
 /* ===================
@@ -4845,6 +4849,9 @@ input, select, textarea {
 #album-view {
     display: none;
     text-align: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
 /* Galerie des images dans un album */
@@ -4862,6 +4869,7 @@ input, select, textarea {
     border-radius: 0; /* Suppression des arrondis */
     object-fit: cover;
     cursor: pointer;
+    display: block;
 }
 
 /* ===================
@@ -4875,19 +4883,19 @@ input, select, textarea {
     width: 100vw;
     height: 100vh;
     background: rgba(0, 0, 0, 0.9);
-    backdrop-filter: blur(5px);
-    z-index: 999;
+    z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .fullscreen-image {
-    max-width: 95vw;
-    max-height: 95vh;
+    max-width: 90vw;
+    max-height: 90vh;
     object-fit: contain;
     filter: none !important;
     backdrop-filter: none !important;
+    display: block;
 }
 
 /* Bouton de fermeture */
@@ -4901,7 +4909,7 @@ input, select, textarea {
     background: rgba(0, 0, 0, 0.5);
     padding: 10px;
     border-radius: 50%;
-    z-index: 1001;
+    z-index: 10001;
 }
 
 /* ===================
@@ -4916,4 +4924,10 @@ input, select, textarea {
     #album-content {
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Miniatures plus grandes sur mobile */
     }
+    
+    .fullscreen-image {
+        max-width: 95vw;
+        max-height: 95vh;
+    }
 }
+
