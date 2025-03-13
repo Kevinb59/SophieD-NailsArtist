@@ -4826,7 +4826,7 @@ input, select, textarea {
 /* Miniatures des albums */
 #portfolio-gallery article .image img {
     width: 100%;
-    height: 250px; /* Uniformisation */
+    height: auto; /* Conserve les proportions */
     border-radius: 0; /* Suppression des bords arrondis */
     object-fit: cover;
     display: block;
@@ -4862,10 +4862,11 @@ input, select, textarea {
     justify-content: center;
 }
 
-/* Miniatures des photos */
+/* Miniatures des photos (carrées) */
 #album-content img {
     width: 100%;
-    height: 200px; /* Hauteur uniforme */
+    height: auto;
+    aspect-ratio: 1/1; /* Assure un format carré */
     border-radius: 0; /* Suppression des arrondis */
     object-fit: cover;
     cursor: pointer;
