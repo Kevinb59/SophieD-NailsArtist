@@ -4806,55 +4806,38 @@ input, select, textarea {
 
 
 
+/* Ajustement des miniatures des albums */
 .gallery img {
-  border-radius: 10px;
+    border-radius: 10px;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
 }
 
+/* Ajustement des tailles des miniatures selon la résolution */
 @media screen and (max-width: 1680px) {
-  .gallery img {
-    width: 180px;
-  }
+    .gallery img { width: 180px; }
 }
-
 @media screen and (max-width: 1280px) {
-  .gallery img {
-    width: 160px;
-  }
+    .gallery img { width: 160px; }
 }
-
 @media screen and (max-width: 980px) {
-  .gallery img {
-    width: 140px;
-  }
+    .gallery img { width: 140px; }
 }
-
 @media screen and (max-width: 736px) {
-  .gallery img {
-    width: 120px;
-  }
+    .gallery img { width: 120px; }
 }
-
 @media screen and (max-width: 480px) {
-  .gallery img {
-    width: 100px;
-  }
+    .gallery img { width: 100px; }
 }
-
 @media screen and (max-width: 360px) {
-  .gallery img {
-    width: 80px;
-  }
+    .gallery img { width: 80px; }
 }
-
-
-
-
-
 
 /* Ajustement de la galerie d'albums */
 #portfolio-gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* 2 albums par ligne sur PC */
     gap: 20px;
 }
 
@@ -4863,7 +4846,7 @@ input, select, textarea {
     width: 100%;
     height: 250px;
     object-fit: cover;
-    border-radius: 15px;
+    border-radius: 0; /* Suppression des bords arrondis */
 }
 
 /* Vue d'un album */
@@ -4875,17 +4858,17 @@ input, select, textarea {
 /* Galerie des images dans un album */
 #album-content {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* 3 images par ligne */
     gap: 10px;
     justify-content: center;
 }
 
 /* Miniatures des photos */
 .thumbnail {
-    width: 100px;
-    height: 100px;
+    width: 100%;
+    height: auto;
     object-fit: cover;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
 }
 
@@ -4911,7 +4894,7 @@ input, select, textarea {
     width: auto;
     height: auto;
     object-fit: contain;
-    filter: none !important; /* Annule tout flou potentiel */
+    filter: none !important;
     backdrop-filter: none !important;
 }
 
@@ -4953,6 +4936,14 @@ input, select, textarea {
 
 /* 🔹 Spécifique aux mobiles */
 @media (max-width: 768px) {
+    #portfolio-gallery {
+        grid-template-columns: 1fr; /* 1 album par ligne sur mobile */
+    }
+    
+    #album-content {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Adapté au mobile */
+    }
+    
     .fullscreen-image {
         max-width: 100vw;
         max-height: 100vh;
