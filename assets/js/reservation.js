@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
 
         // Construction de l'URL GET avec les paramètres
-        const scriptURL = "https://script.google.com/macros/s/AKfycbz0pYGtB-VCAHnVeiS8k2OEjnSxvcZeH3U1qjLWykNNgeVJ7rlfnsyLBqH_ugODhPaK/exec";
+        const scriptURL = "https://script.google.com/macros/s/AKfycbzeFrtdT3qjQxyGIeDPdZrnXeX5iy65PBtEq9_Er65BpsWgd6Szqcv58hez2G6YezKP/exec";
         const queryParams = Object.keys(formData).map(key => `${key}=${formData[key]}`).join("&");
         const fullUrl = scriptURL + "?" + queryParams;
 
