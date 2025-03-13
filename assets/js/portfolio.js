@@ -1,31 +1,36 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const albumsCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?gid=93229033&single=true&output=csv";
-    const photosCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?gid=30306405&single=true&output=csv";
-    const galleryContainer = document.getElementById("portfolio-gallery");
-    const albumContainer = document.getElementById("album-view");
-    let albumsData = [];
-    let photosData = [];
+document.addEventListener("DOMContentLoaded", async function () {
+    const albumsUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?gid=93229033&single=true&output=csv";
+    const photosUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?gid=30306405&single=true&output=csv";
 
-    // Fonction pour charger et parser un fichier CSV
-    async function loadCSV(url) {
+    const galleryContainer = document.getElementById("portfolio-gallery");
+    const albumView = document.getElementById("album-view");
+    const albumContent = document.getElementById("album-content");
+
+    let albums = [];
+    let photos = [];
+
+    // 📌 Récupère et parse le fichier CSV en JSON
+    async function fetchCSV(url) {
         const response = await fetch(url);
         const text = await response.text();
-        return text.split("\n").slice(1).map(row => row.split(","));
+        return text.split("\n").slice(1).map(row => {
+            const cols = row.split(",");
+            return cols.map(col => col.replace(/"/g, "").trim());
+        });
     }
 
-    // Charger et afficher les albums
+    // 📌 Charge les albums
     async function loadAlbums() {
-        albumsData = await loadCSV(albumsCSV);
-        galleryContainer.innerHTML = "";
+        albums = await fetchCSV(albumsUrl);
+        galleryContainer.innerHTML = ""; // Vide la galerie avant ajout des albums
 
-        albumsData.forEach(album => {
-            const [albumId, albumName, miniatureUrl, description] = album;
+        albums.forEach(([albumId, albumName, miniatureUrl, description]) => {
             const article = document.createElement("article");
             article.innerHTML = `
                 <header>
                     <h2>${albumName}</h2>
                 </header>
-                <a href="#" class="image fit"><img src="${miniatureUrl}" alt="${albumName}" /></a>
+                <a href="#" class="image fit"><img src="${miniatureUrl}" alt="${albumName}" class="album-thumbnail"/></a>
                 <p class="description-text">${description}</p>
                 <ul class="actions special">
                     <li><a href="#" class="button discover-btn" data-album-id="${albumId}">Découvrir</a></li>
@@ -37,20 +42,22 @@ document.addEventListener("DOMContentLoaded", function () {
         attachDiscoverEvents();
     }
 
-    // Charger et afficher les photos d'un album
-    async function loadAlbumPhotos(albumId) {
-        photosData = await loadCSV(photosCSV);
-        const albumPhotos = photosData.filter(photo => photo[0] === albumId);
-        albumContainer.innerHTML = `
-            <ul class="actions special">
-                <li><a href="#" id="close-album" class="button primary icon solid fa-arrow-left">Retour aux albums</a></li>
-            </ul>
-            <div id="album-content" class="gallery"></div>
-        `;
+    // 📌 Charge les images d'un album
+    async function fetchAlbumPhotos(albumId) {
+        albumView.style.display = "block";
+        galleryContainer.style.display = "none";
+        albumContent.innerHTML = `<p>Chargement des images...</p>`;
 
-        const albumContent = document.getElementById("album-content");
-        albumPhotos.forEach(photo => {
-            const imageUrl = photo[2];
+        photos = await fetchCSV(photosUrl);
+        const albumPhotos = photos.filter(photo => photo[0] === albumId);
+
+        albumContent.innerHTML = ""; // Vide avant d'ajouter les images
+        if (albumPhotos.length === 0) {
+            albumContent.innerHTML = "<p>Aucune image trouvée pour cet album.</p>";
+            return;
+        }
+
+        albumPhotos.forEach(([_, __, imageUrl]) => {
             const img = document.createElement("img");
             img.src = imageUrl;
             img.alt = "Photo d'album";
@@ -60,35 +67,39 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             albumContent.appendChild(img);
         });
-
-        document.getElementById("close-album").addEventListener("click", function () {
-            albumContainer.style.display = "none";
-            galleryContainer.style.display = "grid";
-        });
     }
 
-    // Gérer les événements pour découvrir un album
+    // 📌 Associe les événements aux boutons "Découvrir"
     function attachDiscoverEvents() {
         document.querySelectorAll(".discover-btn").forEach(button => {
             button.addEventListener("click", function (event) {
                 event.preventDefault();
-                const albumId = this.getAttribute("data-album-id");
-                galleryContainer.style.display = "none";
-                albumContainer.style.display = "grid";
-                loadAlbumPhotos(albumId);
+                fetchAlbumPhotos(this.getAttribute("data-album-id"));
             });
+        });
+
+        document.getElementById("close-album").addEventListener("click", function () {
+            albumView.style.display = "none";
+            galleryContainer.style.display = "grid";
         });
     }
 
-    // Affichage plein écran des images
+    // 📌 Ouvre une image en plein écran
     function openFullscreen(src) {
         const overlay = document.createElement("div");
         overlay.classList.add("fullscreen-overlay");
+
         const modal = document.createElement("div");
         modal.classList.add("fullscreen-modal");
-        modal.innerHTML = `<img src="${src}" class="fullscreen-image" /><span class="close-modal">&times;</span>`;
+
+        modal.innerHTML = `
+            <img src="${src}" class="fullscreen-image" />
+            <span class="close-modal">&times;</span>
+        `;
+
         document.body.appendChild(overlay);
         document.body.appendChild(modal);
+
         overlay.addEventListener("click", closeFullscreen);
         modal.querySelector(".close-modal").addEventListener("click", closeFullscreen);
     }
@@ -98,5 +109,6 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelector(".fullscreen-modal")?.remove();
     }
 
+    // Démarre le chargement des albums
     loadAlbums();
 });
