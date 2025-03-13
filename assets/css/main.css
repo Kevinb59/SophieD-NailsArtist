@@ -4818,13 +4818,13 @@ input, select, textarea {
     display: grid;
     grid-template-columns: repeat(2, 1fr); /* 2 albums par ligne sur PC */
     gap: 20px;
-    justify-content: center;
+    /*justify-content: center;*/
 }
 
 /* Miniatures des albums */
 #portfolio-gallery article .image img {
     width: 100%;
-    height: 250px; /* Uniformisation */
+    height: 210px; /* Uniformisation */
     border-radius: 0; /* Suppression des bords arrondis */
     object-fit: cover;
 }
