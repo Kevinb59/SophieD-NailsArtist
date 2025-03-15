@@ -14,9 +14,6 @@ const csvLinks = {
     supplements: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRglKoc6L2ExSYRDD9H0exyRChQeDsGi-VXPY9s5_Pel-4HrzWFOA9SXyX4VQKFnNUlOIxRF8EBkW_j/pub?gid=1502329466&single=true&output=csv"
 };
 
-/**
- * Fonction principale qui met à jour les créneaux horaires en fonction des prestations et suppléments sélectionnés.
- */
 async function updateDisponibilites() {
     const prestation = document.getElementById("prestation").value;
     const date = document.getElementById("date").value;
@@ -88,19 +85,16 @@ async function updateDisponibilites() {
 
 function calculateSupplementsDuration(supplements) {
     let total = 0;
-    const supplementDurations = {};
-    
-    supplements.forEach(s => {
-        supplementDurations[s.supplement.toLowerCase()] = parseInt(s.duree) || 0;
-    });
+    let strass10 = document.getElementById("strass-10").checked ? 5 : 0;
+    let strass20 = document.getElementById("strass-20").checked ? 10 : 0;
+    let nailArtTravaille = parseInt(document.getElementById("nail-art-travaille").value) || 0;
+    let nailArtSimple = parseInt(document.getElementById("nail-art-simple").value) || 0;
+    let chrome3D = parseInt(document.getElementById("chrome-3d").value) || 0;
 
-    let strass10 = document.getElementById("strass-10").checked ? supplementDurations["strass par 10"] || 0 : 0;
-    let strass20 = document.getElementById("strass-20").checked ? supplementDurations["strass par 20"] || 0 : 0;
-    let nailArtTravaille = (parseInt(document.getElementById("nail-art-travaille").value) || 0) * (supplementDurations["nail art de saison travaillé"] || 0);
-    let nailArtSimple = (parseInt(document.getElementById("nail-art-simple").value) || 0) * (supplementDurations["nail art de saison simple"] || 0);
-    let chrome3D = (parseInt(document.getElementById("chrome-3d").value) || 0) * (supplementDurations["3d + chrome"] || 0);
-
-    total += strass10 + strass20 + nailArtTravaille + nailArtSimple + chrome3D;
+    total += strass10 + strass20;
+    total += nailArtTravaille * 20;
+    total += nailArtSimple * 10;
+    total += chrome3D * 10;
 
     return total;
 }
