@@ -15,6 +15,9 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
+    // Rendre la fonction accessible globalement
+    window.toggleFields = toggleFields;
+
     // Exécute la fonction au chargement de la page
     toggleFields();
 
