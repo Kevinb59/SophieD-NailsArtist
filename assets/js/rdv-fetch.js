@@ -9,12 +9,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 let cols = row.split(",");
                 let date = cols[0]?.trim();
                 let name = cols[15]?.trim();
-                let priceRaw = cols[21]?.trim().replace(/"/g, "").trim(); // Supprimer les guillemets et espaces inutiles
+                let priceRaw = cols[21]?.trim().replace(/"/g, "").replace(" €", "").trim(); // Supprimer guillemets et €
 
                 if (date && name && priceRaw) {
-                    let formattedDate = date.replace(/-/g, "/"); // Remplacer - par /
-                    let optionText = `${formattedDate} - ${name} - ${priceRaw}`; // Garder le format exact du CSV
-                    let optionValue = priceRaw.replace(" €", "").replace(",", "."); // Supprimer uniquement l'€ et remplacer la virgule par un point
+                    let formattedDate = date.replace(/-/g, "/"); // Format date JJ/MM/AAAA
+                    let priceFormatted = parseFloat(priceRaw.replace(",", ".")).toFixed(2).replace(".", ","); // Assurer 2 décimales
+                    let optionText = `${formattedDate} - ${name} - ${priceFormatted} €`;
+                    let optionValue = priceFormatted.replace(",", "."); // Convertir pour input en format numérique
 
                     let option = new Option(optionText, optionValue);
                     select.add(option);
