@@ -58,7 +58,7 @@
                 return;
             }
 
-            const response = await fetch("/pages/api/create-payment-link", {
+            const response = await fetch("/api/create-payment-link", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ amount }),
