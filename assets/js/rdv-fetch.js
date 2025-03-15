@@ -12,16 +12,20 @@ document.addEventListener("DOMContentLoaded", function() {
                 let priceRaw = cols[21]?.trim();
 
                 if (date && name && priceRaw) {
-                    let price = priceRaw.replace("€", "").trim(); // Supprime l'euro
                     let formattedDate = new Date(date).toLocaleDateString("fr-FR");
-                    let optionText = `${formattedDate} - ${name} - ${price}`;
-                    let option = new Option(optionText, price);
+                    let optionText = `${formattedDate} - ${name} - ${priceRaw}`; // Garder le format du CSV avec €
+                    let optionValue = priceRaw.replace("€", "").trim(); // Retirer l'€ pour l'input amount
+
+                    let option = new Option(optionText, optionValue);
                     select.add(option);
                 }
             });
         });
 
     document.getElementById("rdv-select").addEventListener("change", function() {
-        document.getElementById("amount").value = this.value; // Met à jour l'input amount
+        let selectedPrice = this.value;
+        if (selectedPrice) {
+            document.getElementById("amount").value = selectedPrice.replace(",", "."); // Remplacer , par . pour format numérique
+        }
     });
 });
