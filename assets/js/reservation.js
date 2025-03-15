@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const formData = {
             nom: encodeURIComponent(document.getElementById("nom").value),
             email: encodeURIComponent(document.getElementById("email").value),
-            telephone: encodeURIComponent("'" + document.getElementById("telephone").value), // Préserve le 0
+            telephone: encodeURIComponent(document.getElementById("telephone").value), // Préserve le 0
             date: encodeURIComponent(document.getElementById("date").value),
             heure: encodeURIComponent(document.getElementById("horaire").value.split(" - ")[0]), // Garde l'heure de début
             prestation: encodeURIComponent(document.getElementById("prestation").value),
@@ -55,7 +55,8 @@ document.addEventListener("DOMContentLoaded", function () {
             supp_3d: encodeURIComponent(document.getElementById("chrome-3d").value || "0"),
             nailart_libre: encodeURIComponent(document.querySelector('input[name="longueur"]:checked') ? 
                 document.querySelector('input[name="longueur"]:checked').value : ""),
-            image: encodeURIComponent(imageUrl) // Lien de l’image Cloudinary
+            image: encodeURIComponent(imageUrl), // Lien de l’image Cloudinary
+            depose: document.getElementById("depose").checked ? "TRUE" : ""
         };
 
         // Construction de l'URL GET avec les paramètres
