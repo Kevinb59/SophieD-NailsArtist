@@ -7,14 +7,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
             rows.forEach(row => {
                 let cols = row.split(",");
-                let date = cols[0]?.trim();
-                let name = cols[15]?.trim();
-                let priceRaw = cols[21]?.trim();
+                let date = cols[0]?.trim();  // Date
+                let name = cols[15]?.trim(); // Nom
+                let priceRaw = cols[21]?.trim(); // Prix brut "XX,XX €"
 
                 if (date && name && priceRaw) {
-                    let formattedDate = new Date(date).toLocaleDateString("fr-FR");
-                    let optionText = `${formattedDate} - ${name} - ${priceRaw}`; // Garder le format du CSV avec €
-                    let optionValue = priceRaw.replace("€", "").trim(); // Retirer l'€ pour l'input amount
+                    let optionText = `${date.replace(/-/g, "/")} - ${name} - ${priceRaw}`; // Garder le format exact du CSV
+                    let optionValue = priceRaw.replace(" €", ""); // Supprimer uniquement l'€
 
                     let option = new Option(optionText, optionValue);
                     select.add(option);
@@ -25,7 +24,7 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("rdv-select").addEventListener("change", function() {
         let selectedPrice = this.value;
         if (selectedPrice) {
-            document.getElementById("amount").value = selectedPrice.replace(",", "."); // Remplacer , par . pour format numérique
+            document.getElementById("amount").value = selectedPrice.replace(",", "."); // Remplacer , par . pour un format numérique
         }
     });
 });
