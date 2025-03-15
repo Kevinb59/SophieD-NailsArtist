@@ -7,13 +7,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
             rows.forEach(row => {
                 let cols = row.split(",");
-                let date = cols[0]?.trim();  // Date
-                let name = cols[15]?.trim(); // Nom
-                let priceRaw = cols[21]?.trim(); // Prix brut "XX,XX €"
+                let date = cols[0]?.trim();
+                let name = cols[15]?.trim();
+                let priceRaw = cols[21]?.trim().replace(/"/g, "").trim(); // Supprimer les guillemets et espaces inutiles
 
                 if (date && name && priceRaw) {
-                    let optionText = `${date.replace(/-/g, "/")} - ${name} - ${priceRaw}`; // Garder le format exact du CSV
-                    let optionValue = priceRaw.replace(" €", ""); // Supprimer uniquement l'€
+                    let formattedDate = date.replace(/-/g, "/"); // Remplacer - par /
+                    let optionText = `${formattedDate} - ${name} - ${priceRaw}`; // Garder le format exact du CSV
+                    let optionValue = priceRaw.replace(" €", "").replace(",", "."); // Supprimer uniquement l'€ et remplacer la virgule par un point
 
                     let option = new Option(optionText, optionValue);
                     select.add(option);
@@ -24,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("rdv-select").addEventListener("change", function() {
         let selectedPrice = this.value;
         if (selectedPrice) {
-            document.getElementById("amount").value = selectedPrice.replace(",", "."); // Remplacer , par . pour un format numérique
+            document.getElementById("amount").value = selectedPrice; // Insérer proprement dans l'input
         }
     });
 });
