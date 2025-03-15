@@ -85,13 +85,14 @@ async function updateDisponibilites() {
 
 function calculateSupplementsDuration(supplements) {
     let total = 0;
+    let depose = document.getElementById("depose").checked ? 30 : 0;
     let strass10 = document.getElementById("strass-10").checked ? 5 : 0;
     let strass20 = document.getElementById("strass-20").checked ? 10 : 0;
     let nailArtTravaille = parseInt(document.getElementById("nail-art-travaille").value) || 0;
     let nailArtSimple = parseInt(document.getElementById("nail-art-simple").value) || 0;
     let chrome3D = parseInt(document.getElementById("chrome-3d").value) || 0;
 
-    total += strass10 + strass20;
+    total += strass10 + strass20 + depose;
     total += nailArtTravaille * 20;
     total += nailArtSimple * 10;
     total += chrome3D * 10;
