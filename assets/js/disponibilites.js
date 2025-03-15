@@ -92,9 +92,9 @@ function calculateSupplementsDuration(supplements) {
     let chrome3D = parseInt(document.getElementById("chrome-3d").value) || 0;
 
     total += strass10 + strass20;
-    total += nailArtTravaille * 10;
-    total += nailArtSimple * 5;
-    total += chrome3D * 5;
+    total += nailArtTravaille * 20;
+    total += nailArtSimple * 10;
+    total += chrome3D * 10;
 
     return total;
 }
