@@ -29,7 +29,7 @@ export default async function handler(req, res) {
             unit_amount: Math.round(amount * 100), // Convertir en centimes
             currency: 'eur',
             product_data: {
-                name: 'Paiement personnalisé',
+                name: 'Prestation ongulaire',
             },
         });
 
